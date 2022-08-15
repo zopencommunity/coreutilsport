@@ -1,8 +1,12 @@
 #!/bin/sh
-INSTALL_DIR="$1"
+install_dir="$1"
 
-cat <<EOF > ${INSTALL_DIR}/.env
-export PATH="${INSTALL_DIR}/bin:\$PATH"
-EOF
-
+cat <<zz >"${install_dir}/.env"
+if ! [ -f ./.env ]; then
+	echo "Need to source from the .env directory" >&2
+	return 0
+fi
+mydir="\${PWD}"
+export PATH="\${mydir}/bin:\$PATH"
+zz
 exit 0
