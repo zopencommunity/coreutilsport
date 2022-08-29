@@ -1,0 +1,55 @@
+diff --git a/src/copy.c b/src/copy.c
+index b15d919..068cb15 100644
+--- a/src/copy.c
++++ b/src/copy.c
+@@ -1447,6 +1447,10 @@ copy_reg (char const *src_name, char const *dst_name,
+             return_val = false;
+         }
+     }
++#ifdef __MVS__
++/* Copy MVS file tags */
++  __setfdccsid(dest_desc,  (src_sb->st_tag.ft_txtflag << 16) | src_sb->st_tag.ft_ccsid);
++#endif
+ 
+ close_src_and_dst_desc:
+   if (close (dest_desc) < 0)
+@@ -1918,6 +1922,17 @@ source_is_dst_backup (char const *srcbase, struct stat const *src_st,
+   return dst_back_status == 0 && SAME_INODE (*src_st, dst_back_sb);
+ }
+ 
++#ifdef __MVS__
++int __setfdccsid(int fd, int t_ccsid) {
++  attrib_t attr;
++  memset(&attr, 0, sizeof(attr));
++  attr.att_filetagchg = 1;
++  attr.att_filetag.ft_txtflag = (t_ccsid >> 16);
++  attr.att_filetag.ft_ccsid = (t_ccsid & 0x0ffff);
++  return __fchattr(fd, &attr, sizeof(attr));
++}
++#endif
++
+ /* Copy the file SRC_NAME to the file DST_NAME aka DST_DIRFD+DST_RELNAME.
+    If NONEXISTENT_DST is positive, DST_NAME does not exist even as a
+    dangling symlink; if negative, it does not exist except possibly
+diff --git a/lib/posix_memalign.c b/lib/posix_memalign.c
+index b490665..6c10626 100644
+--- a/lib/posix_memalign.c
++++ b/lib/posix_memalign.c
+@@ -25,6 +25,11 @@ int
+ posix_memalign (void **memptr, size_t alignment, size_t size)
+ #undef posix_memalign
+ {
++/* FIXME: MVS does not have posix_memalign */
++#ifdef __MVS__
++    *memptr = malloc(size);
++    return *memptr;
++#else
+   /* Round up SIZE to the next multiple of ALIGNMENT, namely
+      (SIZE + ALIGNMENT - 1) & ~(ALIGNMENT - 1).  */
+   size += alignment - 1;
+@@ -32,4 +37,5 @@ posix_memalign (void **memptr, size_t alignment, size_t size)
+     return posix_memalign (memptr, alignment, size & ~(size_t)(alignment - 1));
+   else
+     return ENOMEM;
++#endif
+ }
