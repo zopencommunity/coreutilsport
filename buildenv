@@ -17,9 +17,9 @@ zopen_check_results()
 }
 
 #
-# For now, delete all tools except install and diff
+# For now, delete all tools except install and md5sum
 #
 zopen_post_install() 
 {
-  cd "$1" && find . -type f ! -name "install" -print | xargs rm
+  cd "$1" && find . -type f ! -name "install" ! -name "md5sum" -print | xargs rm
 }
