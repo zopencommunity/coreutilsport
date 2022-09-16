@@ -15,3 +15,10 @@ zopen_check_results()
   return 3 # non-functional
 }
 
+#
+# For now, delete all tools except install and diff
+#
+zopen_post_install() 
+{
+  cd "$1" && find . -type f ! -name "install" -print | xargs rm
+}
