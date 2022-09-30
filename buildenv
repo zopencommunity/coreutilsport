@@ -13,6 +13,11 @@ export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 
 # Skip until port is completed
 export ZOPEN_CHECK="skip"
+zopen_check_results()
+{
+  # empty for now
+}
+
 #
 # For now, delete all tools except install and md5sum
 #
