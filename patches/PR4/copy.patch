@@ -1,36 +1,3 @@
-diff --git a/src/copy.c b/src/copy.c
-index b15d919..068cb15 100644
---- a/src/copy.c
-+++ b/src/copy.c
-@@ -1447,6 +1447,10 @@ copy_reg (char const *src_name, char const *dst_name,
-             return_val = false;
-         }
-     }
-+#ifdef __MVS__
-+/* Copy MVS file tags */
-+  __setfdccsid(dest_desc,  (src_sb->st_tag.ft_txtflag << 16) | src_sb->st_tag.ft_ccsid);
-+#endif
- 
- close_src_and_dst_desc:
-   if (close (dest_desc) < 0)
-@@ -1918,6 +1922,17 @@ source_is_dst_backup (char const *srcbase, struct stat const *src_st,
-   return dst_back_status == 0 && SAME_INODE (*src_st, dst_back_sb);
- }
- 
-+#ifdef __MVS__
-+int __setfdccsid(int fd, int t_ccsid) {
-+  attrib_t attr;
-+  memset(&attr, 0, sizeof(attr));
-+  attr.att_filetagchg = 1;
-+  attr.att_filetag.ft_txtflag = (t_ccsid >> 16);
-+  attr.att_filetag.ft_ccsid = (t_ccsid & 0x0ffff);
-+  return __fchattr(fd, &attr, sizeof(attr));
-+}
-+#endif
-+
- /* Copy the file SRC_NAME to the file DST_NAME aka DST_DIRFD+DST_RELNAME.
-    If NONEXISTENT_DST is positive, DST_NAME does not exist even as a
-    dangling symlink; if negative, it does not exist except possibly
 diff --git a/lib/posix_memalign.c b/lib/posix_memalign.c
 index b490665..6c10626 100644
 --- a/lib/posix_memalign.c
@@ -53,3 +20,44 @@ index b490665..6c10626 100644
      return ENOMEM;
 +#endif
  }
+diff --git a/src/copy.c b/src/copy.c
+index b15d919..41d3181 100644
+--- a/src/copy.c
++++ b/src/copy.c
+@@ -1264,6 +1264,10 @@ copy_reg (char const *src_name, char const *dst_name,
+       return_val = false;
+       goto close_src_desc;
+     }
++#ifdef __MVS__
++/* Copy MVS file tags */
++  __setfdccsid(dest_desc,  (src_sb->st_tag.ft_txtflag << 16) | src_sb->st_tag.ft_ccsid);
++#endif
+ 
+   /* --attributes-only overrides --reflink.  */
+   if (data_copy_required && x->reflink_mode)
+@@ -1447,7 +1451,6 @@ copy_reg (char const *src_name, char const *dst_name,
+             return_val = false;
+         }
+     }
+-
+ close_src_and_dst_desc:
+   if (close (dest_desc) < 0)
+     {
+@@ -1918,6 +1921,17 @@ source_is_dst_backup (char const *srcbase, struct stat const *src_st,
+   return dst_back_status == 0 && SAME_INODE (*src_st, dst_back_sb);
+ }
+ 
++#ifdef __MVS__
++int __setfdccsid(int fd, int t_ccsid) {
++  attrib_t attr;
++  memset(&attr, 0, sizeof(attr));
++  attr.att_filetagchg = 1;
++  attr.att_filetag.ft_txtflag = (t_ccsid >> 16);
++  attr.att_filetag.ft_ccsid = (t_ccsid & 0x0ffff);
++  return __fchattr(fd, &attr, sizeof(attr));
++}
++#endif
++
+ /* Copy the file SRC_NAME to the file DST_NAME aka DST_DIRFD+DST_RELNAME.
+    If NONEXISTENT_DST is positive, DST_NAME does not exist even as a
+    dangling symlink; if negative, it does not exist except possibly
