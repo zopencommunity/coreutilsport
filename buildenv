@@ -12,10 +12,40 @@ export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 
 # Skip until port is completed
 export ZOPEN_CHECK="skip"
+export ZOPEN_INSTALL="skip"
 
 zopen_check_results()
 {
-  # empty for now
+# Example check log file:
+#
+# TOTAL: 634
+# PASS:  79
+# SKIP:  189
+# XFAIL: 0
+# FAIL:  362
+# XPASS: 0
+# ERROR: 4
+chk="$2_check.log"
+
+totalTests=$(grep "^# TOTAL: " ${chk} | awk '{ print $3 }')
+actualFailures=$(grep "^# FAIL: " ${chk} | awk '{ print $3 }')
+actualPass=$(grep "^# PASS: " ${chk} | awk '{ print $3 }')
+actualErrors=$(grep "^# ERROR: " ${chk} | awk '{ print $3 }')
+actualSkip=$(grep "^# SKIP: " ${chk} | awk '{ print $3 }')
+expectedFailures=362
+expectedErrors=4
+expectedPass=79
+expectedSkip=189
+totalExpectedFailures=$(($expectedFailures+$expectedErrors))
+totalActualFailures=$(($actualFailures+$actualErrors))
+expectedFailures=366
+totalRunTests=$(($totalTests-$actualSkip))
+
+cat <<ZZ
+actualFailures:$totalActualFailures
+totalTests:$totalRunTests
+expectedFailures:$totalExpectedFailures
+ZZ
 }
 
 zopen_post_install() 
