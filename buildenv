@@ -43,5 +43,5 @@ ZZ
 
 zopen_post_install() 
 {
-   cd "$1/bin" && find . -type f ! -name "install" ! -name "md5sum" ! -name "mktemp" ! -name "tr" ! -name "readlink" ! -name "realpath" ! -name "sha1sum" ! -name "fmt" ! -name "echo" ! -name "sort" -print | xargs rm 
+   cd "$1/bin" && find . -type f ! -name "install" ! -name "md5sum" ! -name "mktemp" ! -name "tr" ! -name "readlink" ! -name "realpath" ! -name "sha1sum" ! -name "fmt" ! -name "echo" ! -name "sort" ! -name "join" -print | xargs rm 
 }
