@@ -34,7 +34,7 @@ index 3bacf7d..bb788fd 100644
 +    char dir[_XOPEN_PATH_MAX];
 +    int rc = w_ioctl(fd, _IOCC_GPN, _XOPEN_PATH_MAX, dir);
 +    if (rc == 0) {
-+      __e2a_l(dir, 1024);
++      __e2a_l(dir, _XOPEN_PATH_MAX);
 +    }
 +    size_t bufsize;
 +    dirlen = strlen (dir);
