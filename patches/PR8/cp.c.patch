@@ -1,41 +1,61 @@
 diff --git a/src/cp.c b/src/cp.c
-index 0f44b35..b84f163 100644
+index 0f44b35..012e67b 100644
 --- a/src/cp.c
 +++ b/src/cp.c
-@@ -565,6 +565,15 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
+@@ -565,6 +565,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
    return true;
  }
  
 +#ifdef __MVS__
++#define MVS_COPY "/bin/cp"
++#define MVS_COPY_LEN (sizeof(MVS_COPY)-1)
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/wait.h>
 +static bool
 +do_mvs_copy (int argc, char **argv) 
 +{
-+  printf("mvs copy to be done\n");
-+  return true;
++
++  pid_t pid = fork();
++  if (pid == 0) {
++    argv[0] = MVS_COPY;
++    execvp(MVS_COPY, argv);
++  } else if (pid > 0) {
++    int wstatus;
++    pid_t waitchild = waitpid(pid, &wstatus, WUNTRACED | WCONTINUED);
++    if (waitchild == -1) {
++      perror("waitpid");
++      return false;
++    }
++    if (WIFEXITED(wstatus)) {
++      return WEXITSTATUS(wstatus) == 0 ? true : false;
++    } else if (WIFSIGNALED(wstatus)) {
++      fprintf(stderr, "killed by signal %d\n", WTERMSIG(wstatus));
++    }
++  }
 +}
 +#endif
 +
  /* Scan the arguments, and copy each by calling copy.
     Return true if successful.  */
  
-@@ -1212,6 +1221,20 @@ main (int argc, char **argv)
- 
-   hash_init ();
+@@ -941,6 +971,19 @@ main (int argc, char **argv)
+   bool no_target_directory = false;
+   char const *scontext = NULL;
  
 +#ifdef __MVS__
 +  {
 +    int i;
-+    int nfiles=argc-optind;
-+    char** files = argv+optind;
 +
-+    for (i=0; i<nfiles; ++i) {
-+      if (files[i][0] == '/' && files[i][1] == '/') {
++    for (i=0; i<argc; ++i) {
++      if (argv[i][0] == '/' && argv[i][1] == '/') {
 +        ok = do_mvs_copy(argc, argv);
 +        main_exit (ok ? EXIT_SUCCESS : EXIT_FAILURE);
 +      }
 +    }
 +  }
 +#endif
-   ok = do_copy (argc - optind, argv + optind,
-                 target_directory, no_target_directory, &x);
- 
++
+   initialize_main (&argc, &argv);
+   set_program_name (argv[0]);
+   setlocale (LC_ALL, "");
