@@ -1,0 +1,90 @@
+diff --git a/src/basenc.c b/src/basenc.c
+index 04857d5..04672e0 100644
+--- a/src/basenc.c
++++ b/src/basenc.c
+@@ -1239,6 +1239,9 @@ main (int argc, char **argv)
+         die (EXIT_FAILURE, errno, "%s", quotef (infile));
+     }
+ 
++#ifdef __MVS__
++  __disableautocvt(fileno(input_fh));
++#endif
+   fadvise (input_fh, FADVISE_SEQUENTIAL);
+ 
+   if (decode)
+diff --git a/src/digest.c b/src/digest.c
+index 737a829..8e024cb 100644
+--- a/src/digest.c
++++ b/src/digest.c
+@@ -437,7 +437,7 @@ Print or check %s (%d-bit) checksums.\n\
+ #endif
+ #if !HASH_ALGO_SUM
+ # if !HASH_ALGO_CKSUM
+-      if (O_BINARY)
++      if (O_BINARY || __MVS__)
+         fputs (_("\
+   -b, --binary          read in binary mode (default unless reading tty stdin)\
+ \n\
+@@ -469,7 +469,7 @@ Print or check %s (%d-bit) checksums.\n\
+ "), stdout);
+ # endif
+ # if !HASH_ALGO_CKSUM
+-      if (O_BINARY)
++      if (O_BINARY || __MVS__)
+         fputs (_("\
+   -t, --text            read in text mode (default if reading tty stdin)\n\
+ "), stdout);
+@@ -914,7 +914,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+     {
+       have_read_stdin = true;
+       fp = stdin;
+-      if (O_BINARY && *binary)
++      if ((O_BINARY || __MVS__) && *binary)
+         {
+           if (*binary < 0)
+             *binary = ! isatty (STDIN_FILENO);
+@@ -924,7 +924,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+     }
+   else
+     {
+-      fp = fopen (filename, (O_BINARY && *binary ? "rb" : "r"));
++      fp = fopen (filename, ((O_BINARY || __MVS__) && *binary ? "rb" : "r"));
+       if (fp == NULL)
+         {
+           if (ignore_missing && errno == ENOENT)
+@@ -937,6 +937,11 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+         }
+     }
+ 
++#ifdef __MVS__
++  if (*binary)
++    __disableautocvt(fileno(fp));
++#endif
++
+   fadvise (fp, FADVISE_SEQUENTIAL);
+ 
+ #if HASH_ALGO_CKSUM
+@@ -1483,7 +1488,7 @@ main (int argc, char **argv)
+      usage (EXIT_FAILURE);
+    }
+ 
+-  if (!O_BINARY && binary < 0)
++  if (!(O_BINARY || __MVS__) && binary < 0)
+     binary = 0;
+ 
+   char **operand_lim = argv + argc;
+diff --git a/src/od.c b/src/od.c
+index adb3238..986b63b 100644
+--- a/src/od.c
++++ b/src/od.c
+@@ -930,6 +930,10 @@ open_next_file (void)
+     }
+   while (in_stream == NULL);
+ 
++#ifdef __MVS__
++  __disableautocvt(fileno(in_stream));
++#endif
++
+   if (limit_bytes_to_format && !flag_dump_strings)
+     setvbuf (in_stream, NULL, _IONBF, 0);
+ 
