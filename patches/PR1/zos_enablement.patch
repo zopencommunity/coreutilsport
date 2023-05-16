@@ -67,59 +67,6 @@ index cfafb25..b0a5945 100644
                  {
                    intmax_t isize = size;
                    error (0, ftruncate_errno,
-diff --git a/src/pinky.c b/src/pinky.c
-index 88862c2..ef259ed 100644
---- a/src/pinky.c
-+++ b/src/pinky.c
-@@ -242,13 +242,21 @@ print_entry (const STRUCT_UTMP *utmp_ent)
-         printf (" %19s", _("        ???"));
-       else
-         {
-+#ifdef __MVS__
-+          char *const comma = "UNKNOWN";
-+#else
-           char *const comma = strchr (pw->pw_gecos, ',');
-+#endif
-           char *result;
- 
-           if (comma)
-             *comma = '\0';
- 
-+#ifdef __MVS__
-+          result = create_fullname ("", pw->pw_name);
-+#else
-           result = create_fullname (pw->pw_gecos, pw->pw_name);
-+#endif
-           printf (" %-19.19s", result);
-           free (result);
-         }
-@@ -323,13 +331,21 @@ print_long_entry (const char name[])
-     }
-   else
-     {
--      char *const comma = strchr (pw->pw_gecos, ',');
--      char *result;
-+#ifdef __MVS__
-+          char *const comma = "UNKNOWN";
-+#else
-+          char *const comma = strchr (pw->pw_gecos, ',');
-+#endif
-+          char *result;
- 
--      if (comma)
--        *comma = '\0';
-+          if (comma)
-+            *comma = '\0';
- 
--      result = create_fullname (pw->pw_gecos, pw->pw_name);
-+#ifdef __MVS__
-+          result = create_fullname ("", pw->pw_name);
-+#else
-+          result = create_fullname (pw->pw_gecos, pw->pw_name);
-+#endif
-       printf (" %s", result);
-       free (result);
-     }
 diff --git a/src/shred.c b/src/shred.c
 index 490fcd0..14e063e 100644
 --- a/src/shred.c
