@@ -8,7 +8,6 @@ export ZOPEN_EXTRA_CPPFLAGS="-DSLOW_BUT_NO_HACKS=1 -DNO_ASM -D_LARGE_TIME_API -I
 export ZOPEN_EXTRA_CFLAGS="-fno-builtin"
 export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 export ZOPEN_CHECK_TIMEOUT=30000 # 8 hours and a bit
-export ZOPEN _COMP="clang"
 zopen_check_results()
 {
 # Example check log file:
