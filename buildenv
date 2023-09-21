@@ -1,8 +1,8 @@
 # Set up environment variables for general build tool to operate
 #
-export ZOPEN_TYPE="TARBALL"
-export ZOPEN_TARBALL_URL="https://ftp.wayne.edu/gnu/coreutils/coreutils-9.1.tar.gz"
-export ZOPEN_TARBALL_DEPS="make gzip tar curl perl automake autoconf m4 sed gettext zoslib diffutils"
+export ZOPEN_BUILD_LINE="STABLE"
+export ZOPEN_STABLE_URL="https://ftp.wayne.edu/gnu/coreutils/coreutils-9.1.tar.gz"
+export ZOPEN_STABLE_DEPS="make gzip tar curl perl automake autoconf m4 sed gettext zoslib diffutils"
 export ZOPEN_BOOTSTRAP="skip"
 export ZOPEN_EXTRA_CPPFLAGS="-DSLOW_BUT_NO_HACKS=1 -DNO_ASM -D_LARGE_TIME_API"
 export ZOPEN_EXTRA_CFLAGS="-fno-builtin"
@@ -43,5 +43,12 @@ ZZ
 
 zopen_post_install() 
 {
-   cd "$1/bin" && find . -type f ! -name "install" ! -name "md5sum" ! -name "mktemp" ! -name "tr" ! -name "readlink" ! -name "realpath" ! -name "sha*sum" ! -name "fmt" ! -name "echo" ! -name "sort" ! -name "join" ! -name "cp" ! -name "od" ! -name "cat" ! -name "wc" ! -name "date" ! -name "ptx" ! -name "touch" ! -name "groups" ! -name "shred" ! -name "pinky" ! -name "numfmt" ! -name "vdir" ! -name "stat" !  -name "yes" -print | xargs rm 
+  # run as a child process so the directory change does not 'survive'
+   (cd "$1/bin" && find . -type f ! -name "install" ! -name "md5sum" ! -name "mktemp" ! -name "tr" ! -name "readlink" ! -name "realpath" ! -name "sha*sum" ! -name "fmt" ! -name "echo" ! -name "sort" ! -name "join" ! -name "cp" ! -name "od" ! -name "cat" ! -name "wc" ! -name "date" ! -name "ptx" ! -name "touch" ! -name "groups" ! -name "shred" ! -name "pinky" ! -name "numfmt" ! -name "vdir" ! -name "stat" !  -name "yes" -print | xargs rm)
+}
+
+zopen_get_version()
+{
+  # pick one of the tools
+  ./src/cp --version | head -1 | awk '{print $4; }'
 }
