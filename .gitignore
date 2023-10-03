@@ -4,3 +4,7 @@ install
 log
 log.STABLE
 nohup.out
+new-*.txt
+old-*.txt
+new-*.sort
+old-*.sort

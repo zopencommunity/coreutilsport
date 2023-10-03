@@ -1,5 +1,19 @@
 Test results with patch for LE definition side deck:
 
+===============================================
+   GNU coreutils 9.4: ./tests/test-suite.log
+===============================================
+
+# TOTAL: 645
+# PASS:  336
+# SKIP:  168
+# XFAIL: 0
+# FAIL:  136
+# XPASS: 0
+# ERROR: 5
+
+vs
+
 ============================================================================
 Testsuite summary for GNU coreutils 9.1
 ============================================================================
@@ -10,144 +24,3 @@ Testsuite summary for GNU coreutils 9.1
 # FAIL:  67
 # XPASS: 0
 # ERROR: 4
-
-
-Details:
---------
-
-FAIL: tests/chmod/no-x.sh
-FAIL: tests/rm/d-2.sh
-FAIL: tests/rm/dir-no-w.sh
-FAIL: tests/rm/dir-nonrecur.sh
-FAIL: tests/rm/empty-name.pl
-FAIL: tests/rm/fail-eacces.sh
-FAIL: tests/rm/fail-eperm.xpl
-FAIL: tests/rm/rm1.sh
-FAIL: tests/rm/rm2.sh
-FAIL: tests/rm/unread2.sh
-FAIL: tests/rm/unreadable.pl
-FAIL: tests/chgrp/no-x.sh
-FAIL: tests/fmt/base.pl
-FAIL: tests/misc/env.sh
-FAIL: tests/misc/env-signal-handler.sh
-FAIL: tests/misc/ptx.pl
-FAIL: tests/misc/seq-precision.sh
-FAIL: tests/misc/ls-misc.pl
-FAIL: tests/misc/date.pl
-FAIL: tests/misc/ptx-overrun.sh
-FAIL: tests/misc/pwd-option.sh
-FAIL: tests/misc/wc-files0-from.pl
-FAIL: tests/misc/basename.pl
-FAIL: tests/misc/dirname.pl
-FAIL: tests/misc/env-null.sh
-FAIL: tests/misc/env-S.pl
-FAIL: tests/misc/printenv.sh
-FAIL: tests/misc/pwd-long.sh
-FAIL: tests/misc/readlink-root.sh
-FAIL: tests/misc/realpath.sh
-FAIL: tests/misc/sort.pl
-FAIL: tests/misc/sort-files0-from.pl
-FAIL: tests/misc/sort-float.sh
-FAIL: tests/misc/sort-merge-fdlimit.sh
-FAIL: tests/misc/sync.sh
-FAIL: tests/misc/tail.pl
-FAIL: tests/misc/truncate-fail-diag.sh
-FAIL: tests/misc/uniq-collate.sh
-FAIL: tests/cp/fail-perm.sh
-FAIL: tests/cp/link-deref.sh
-FAIL: tests/cp/thru-dangling.sh
-FAIL: tests/df/total-unprocessed.sh
-FAIL: tests/df/total-verify.sh
-FAIL: tests/du/exclude.sh
-FAIL: tests/du/files0-from.pl
-FAIL: tests/du/inacc-dest.sh
-FAIL: tests/du/no-x.sh
-FAIL: tests/install/basic-1.sh
-FAIL: tests/ln/misc.sh
-FAIL: tests/ls/color-clear-to-eol.sh
-FAIL: tests/ls/dired.sh
-FAIL: tests/ls/follow-slink.sh
-FAIL: tests/ls/infloop.sh
-FAIL: tests/ls/no-arg.sh
-FAIL: tests/ls/selinux-segfault.sh
-FAIL: tests/ls/quote-align.sh
-FAIL: tests/ls/recursive.sh
-FAIL: tests/mv/diag.sh
-FAIL: tests/mv/dir2dir.sh
-FAIL: tests/mv/dup-source.sh
-FAIL: tests/mv/part-fail.sh
-FAIL: tests/mv/perm-1.sh
-FAIL: tests/mv/trailing-slash.sh
-FAIL: tests/rmdir/symlink-errors.sh
-FAIL: tests/tail-2/follow-name.sh
-FAIL: tests/touch/fail-diag.sh
-FAIL: tests/touch/not-owner.sh
-FAIL: tests/chmod/no-x
-FAIL: tests/rm/d-2
-FAIL: tests/rm/dir-no-w
-FAIL: tests/rm/dir-nonrecur
-FAIL: tests/rm/empty-name
-FAIL: tests/rm/fail-eacces
-FAIL: tests/rm/fail-eperm
-FAIL: tests/rm/rm1
-FAIL: tests/rm/rm2
-FAIL: tests/rm/unread2
-FAIL: tests/rm/unreadable
-FAIL: tests/chgrp/no-x
-FAIL: tests/fmt/base
-FAIL: tests/misc/env
-FAIL: tests/misc/env-signal-handler
-FAIL: tests/misc/ptx
-FAIL: tests/misc/seq-precision
-FAIL: tests/misc/ls-misc
-FAIL: tests/misc/date
-FAIL: tests/misc/ptx-overrun
-FAIL: tests/misc/pwd-option
-FAIL: tests/misc/wc-files0-from
-FAIL: tests/misc/basename
-FAIL: tests/misc/dirname
-FAIL: tests/misc/env-null
-FAIL: tests/misc/env-S
-FAIL: tests/misc/printenv
-FAIL: tests/misc/pwd-long
-FAIL: tests/misc/readlink-root
-FAIL: tests/misc/realpath
-FAIL: tests/misc/sort
-FAIL: tests/misc/sort-files0-from
-FAIL: tests/misc/sort-float
-FAIL: tests/misc/sort-merge-fdlimit
-FAIL: tests/misc/sync
-FAIL: tests/misc/tail
-FAIL: tests/misc/truncate-fail-diag
-FAIL: tests/misc/uniq-collate
-FAIL: tests/cp/fail-perm
-FAIL: tests/cp/link-deref
-FAIL: tests/cp/thru-dangling
-FAIL: tests/df/total-unprocessed
-FAIL: tests/df/total-verify
-FAIL: tests/du/exclude
-FAIL: tests/du/files0-from
-FAIL: tests/du/inacc-dest
-FAIL: tests/du/no-x
-FAIL: tests/install/basic-1
-FAIL: tests/ln/misc
-FAIL: tests/ls/color-clear-to-eol
-FAIL: tests/ls/dired
-FAIL: tests/ls/follow-slink
-FAIL: tests/ls/infloop
-FAIL: tests/ls/no-arg
-FAIL: tests/ls/selinux-segfault
-FAIL: tests/ls/quote-align
-FAIL: tests/ls/recursive
-FAIL: tests/mv/diag
-FAIL: tests/mv/dir2dir
-FAIL: tests/mv/dup-source
-FAIL: tests/mv/part-fail
-FAIL: tests/mv/perm-1
-FAIL: tests/mv/trailing-slash
-FAIL: tests/rmdir/symlink-errors
-FAIL: tests/tail-2/follow-name
-FAIL: tests/touch/fail-diag
-FAIL: tests/touch/not-owner
-
-# FAIL:  67
