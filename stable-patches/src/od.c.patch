@@ -1,0 +1,15 @@
+diff --git a/src/od.c b/src/od.c
+index 3ad2565..b585be5 100644
+--- a/src/od.c
++++ b/src/od.c
+@@ -919,6 +919,10 @@ open_next_file (void)
+     }
+   while (in_stream == nullptr);
+ 
++#ifdef __MVS__
++  __disableautocvt(fileno(in_stream));
++#endif
++
+   if (limit_bytes_to_format && !flag_dump_strings)
+     setvbuf (in_stream, nullptr, _IONBF, 0);
+ 

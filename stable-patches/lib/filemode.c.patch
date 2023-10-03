@@ -1,0 +1,21 @@
+diff --git a/lib/filemode.c b/lib/filemode.c
+index a8cbea8..63aad5b 100644
+--- a/lib/filemode.c
++++ b/lib/filemode.c
+@@ -155,12 +155,15 @@ filemodestring (struct stat const *statp, char *str)
+ {
+   strmode (statp->st_mode, str);
+ 
++#if !defined(__MVS__)
+   if (S_TYPEISSEM (statp))
+     str[0] = 'F';
+   else if (S_TYPEISMQ (statp))
+     str[0] = 'Q';
+   else if (S_TYPEISSHM (statp))
+     str[0] = 'S';
+-  else if (S_TYPEISTMO (statp))
++  else 
++#endif
++if (S_TYPEISTMO (statp))
+     str[0] = 'T';
+ }

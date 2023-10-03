@@ -1,0 +1,16 @@
+diff --git a/src/shred.c b/src/shred.c
+index 490fcd0..14e063e 100644
+--- a/src/shred.c
++++ b/src/shred.c
+@@ -945,7 +945,11 @@ do_wipefd (int fd, char const *qname, struct randint_source *s,
+      for other file types.  */
+ 
+   if (flags->remove_file && ftruncate (fd, 0) != 0
++#ifdef __MVS__
++      && (S_ISREG (st.st_mode)))
++#else
+       && (S_ISREG (st.st_mode) || S_TYPEISSHM (&st)))
++#endif
+     {
+       error (0, errno, _("%s: error truncating"), qname);
+       ok = false;

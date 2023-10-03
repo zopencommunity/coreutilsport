@@ -1,0 +1,22 @@
+diff --git a/lib/posix_memalign.c b/lib/posix_memalign.c
+index b490665..6c10626 100644
+--- a/lib/posix_memalign.c
++++ b/lib/posix_memalign.c
+@@ -25,6 +25,11 @@ int
+ posix_memalign (void **memptr, size_t alignment, size_t size)
+ #undef posix_memalign
+ {
++/* FIXME: MVS does not have posix_memalign */
++#ifdef __MVS__
++    *memptr = malloc(size);
++    return *memptr;
++#else
+   /* Round up SIZE to the next multiple of ALIGNMENT, namely
+      (SIZE + ALIGNMENT - 1) & ~(ALIGNMENT - 1).  */
+   size += alignment - 1;
+@@ -32,4 +37,5 @@ posix_memalign (void **memptr, size_t alignment, size_t size)
+     return posix_memalign (memptr, alignment, size & ~(size_t)(alignment - 1));
+   else
+     return ENOMEM;
++#endif
+ }

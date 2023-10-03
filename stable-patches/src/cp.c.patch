@@ -1,8 +1,8 @@
 diff --git a/src/cp.c b/src/cp.c
-index 0f44b35..012e67b 100644
+index 04a5cbe..c587b4f 100644
 --- a/src/cp.c
 +++ b/src/cp.c
-@@ -565,6 +565,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
+@@ -601,6 +601,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
    return true;
  }
  
@@ -13,7 +13,7 @@ index 0f44b35..012e67b 100644
 +#include <sys/types.h>
 +#include <sys/wait.h>
 +static bool
-+do_mvs_copy (int argc, char **argv) 
++do_mvs_copy (int argc, char **argv)
 +{
 +
 +  pid_t pid = fork();
@@ -39,9 +39,9 @@ index 0f44b35..012e67b 100644
  /* Scan the arguments, and copy each by calling copy.
     Return true if successful.  */
  
-@@ -941,6 +971,19 @@ main (int argc, char **argv)
+@@ -978,6 +1008,20 @@ main (int argc, char **argv)
    bool no_target_directory = false;
-   char const *scontext = NULL;
+   char const *scontext = nullptr;
  
 +#ifdef __MVS__
 +  {
@@ -55,6 +55,7 @@ index 0f44b35..012e67b 100644
 +    }
 +  }
 +#endif
++
 +
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);

@@ -1,0 +1,17 @@
+diff --git a/src/sort.c b/src/sort.c
+index e779845..6e48860 100644
+--- a/src/sort.c
++++ b/src/sort.c
+@@ -969,7 +969,11 @@ stream_open (char const *file, char const *how)
+         {
+           int ftruncate_errno = errno;
+           struct stat *outst = get_outstatus ();
+-          if (!outst || S_ISREG (outst->st_mode) || S_TYPEISSHM (outst))
++#ifdef __MVS__
++          if (!outst || S_ISREG (outst->st_mode))
++#else
++           if (!outst || S_ISREG (outst->st_mode) || S_TYPEISSHM (outst))
++#endif
+             error (SORT_FAILURE, ftruncate_errno, _("%s: error truncating"),
+                    quotef (file));
+         }
