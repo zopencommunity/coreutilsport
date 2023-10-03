@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#
+Syntax()
+{
+  echo "$0: refine the test results to individual tools"
+  echo "Syntax: $0 <detailed-test-results> [<command>]+"
+  echo "where:" 
+  echo "  <detailed-test-results>: results for full run, e.g. check log from build"
+  echo "  <command>: list of all the commands to be installed"
+}
+
+if [ $# -lt 2 ]; then
+  Syntax
+  exit 4
+fi
+
+input=$1
+
+if ! [ -f "${input}" ]; then
+  echo "Unable to open "${input}" for read." >&2
+  exit 4
+fi
+
+shift
+
+cmds=$@
+
+#
+# First, get list of pass/fail/skip/error tests
+#
+
+results=$( grep -E '^PASS:|^FAIL:|^SKIP:|^ERROR:' "${input}")
+
+
+#
+# Now, restrict results for each tool
+#
+for cmd in $cmds; do
+  echo "${results}" | grep -E " tests/${cmd}/"
+done
+
