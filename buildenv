@@ -7,7 +7,6 @@ export ZOPEN_BOOTSTRAP="skip"
 export ZOPEN_EXTRA_CPPFLAGS="-DSLOW_BUT_NO_HACKS=1 -DNO_ASM -D_LARGE_TIME_API"
 export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 export ZOPEN_CHECK_TIMEOUT=30000 # 8 hours and a bit
-export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat touch tr vdir wc yes"
 
 zopen_check_results()
 {
@@ -20,9 +19,10 @@ zopen_check_results()
 # FAIL:  362
 # XPASS: 0
 # ERROR: 4
-chkbase="$1/$2_check"
 chklog="$1/$2_check.log"
 chkrefined="$1/$2_check_refined.log"
+
+export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat touch tr vdir wc yes"
 
 expectedFailures=363
 expectedErrors=8
@@ -53,8 +53,13 @@ ZZ
 zopen_post_install() 
 {
 
+  findstring="find . -type f"
+  for cmd in $ZOPEN_COREUTILS; do
+    findstring="${findstring} ! -name '${install}'"
+  done
+
   # run as a child process so the directory change does not 'survive'
-   (cd "$1/bin" && find . -type f ! -name "install" ! -name "md5sum" ! -name "mktemp" ! -name "tr" ! -name "readlink" ! -name "realpath" ! -name "sha*sum" ! -name "fmt" ! -name "echo" ! -name "sort" ! -name "join" ! -name "cp" ! -name "od" ! -name "cat" ! -name "wc" ! -name "date" ! -name "ptx" ! -name "touch" ! -name "groups" ! -name "shred" ! -name "pinky" ! -name "numfmt" ! -name "vdir" ! -name "stat" !  -name "yes" -print | xargs rm)
+  (cd "$1/bin" && ${findstring} -print | xargs rm)
 }
 
 zopen_get_version()

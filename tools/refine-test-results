@@ -34,9 +34,29 @@ results=$( grep -E '^PASS:|^FAIL:|^SKIP:|^ERROR:' "${input}")
 
 
 #
-# Now, restrict results for each tool
+# Now, restrict results for each tool. Summary is useful if 
+# overall results were not as expected. Previous summary
+# saved in test-results.txt
 #
-for cmd in $cmds; do
-  echo "${results}" | grep -E " tests/${cmd}/"
-done
+details=true
+summary=false
 
+if $details; then
+  for cmd in $cmds; do
+    echo "${results}" | grep -E " tests/${cmd}/"
+  done
+fi
+
+if $summary; then
+  tabs 10
+  echo "Command\tPass\tFail\tSkip\tError"
+  for cmd in $cmds; do
+    cmdresults=$( echo "${results}" | grep -E " tests/${cmd}/" )
+    pass=$( echo "${cmdresults}" | grep -E "^PASS:" | wc -l )
+    fail=$( echo "${cmdresults}" | grep -E "^FAIL:" | wc -l )
+    skip=$( echo "${cmdresults}" | grep -E "^SKIP:" | wc -l )
+    err=$( echo "${cmdresults}" | grep -E "^ERROR:" | wc -l )
+    echo "${cmd}\t${pass}\t${fail}\t${skip}\t${err}"
+  done
+  tabs 8
+fi
