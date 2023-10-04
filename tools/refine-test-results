@@ -4,11 +4,42 @@
 Syntax()
 {
   echo "$0: refine the test results to individual tools"
-  echo "Syntax: $0 <detailed-test-results> [<command>]+"
+  echo "Syntax: $0 [-sda] <detailed-test-results> [<command>]+"
   echo "where:" 
+  echo "  -s: test results summary"
+  echo "  -d: detailed results (default)"
+  echo "  -a: summary and detailed results"
+  echo "  -h: print this help"
   echo "  <detailed-test-results>: results for full run, e.g. check log from build"
   echo "  <command>: list of all the commands to be installed"
+  echo "Example:"
+  echo " Print a summary of the test results from the 'check' output of a particular run:"
+  echo "  $0 -s \$HOME/zopen/dev/coreutilsport/log.STABLE/20231003_230740_check.log"
 }
+
+details=true
+summary=false
+
+args=$@
+for arg in ${args}; do
+  case $arg in
+    -s) summary=true; details=false
+    shift
+    ;;
+    -d) details=true; summary=false
+    shift
+    ;;
+    -a) summary=true; details=true
+    shift
+    ;;
+    --help|-h|-?) 
+    Syntax;
+    exit 0
+    ;;
+    *) break
+    ;;
+  esac
+done
 
 if [ $# -lt 2 ]; then
   Syntax
@@ -38,8 +69,6 @@ results=$( grep -E '^PASS:|^FAIL:|^SKIP:|^ERROR:' "${input}")
 # overall results were not as expected. Previous summary
 # saved in test-results.txt
 #
-details=true
-summary=false
 
 if $details; then
   for cmd in $cmds; do
@@ -49,14 +78,14 @@ fi
 
 if $summary; then
   tabs 10
-  echo "Category  \tPass\tFail\tSkip\tError"
+  printf "Category\tPass\tFail\tSkip\tError\n"
   for cmd in $cmds; do
     cmdresults=$( echo "${results}" | grep -E " tests/${cmd}/" )
     pass=$( echo "${cmdresults}" | grep -E "^PASS:" | wc -l )
     fail=$( echo "${cmdresults}" | grep -E "^FAIL:" | wc -l )
     skip=$( echo "${cmdresults}" | grep -E "^SKIP:" | wc -l )
     err=$( echo "${cmdresults}" | grep -E "^ERROR:" | wc -l )
-    echo "${cmd}\t${pass}\t${fail}\t${skip}\t${err}"
+    printf "%s\t%s\t%s\t%s\t%s\t\n" "${cmd}" "${pass}" "${fail}" "${skip}" "${err}"
   done
   tabs 8
 fi

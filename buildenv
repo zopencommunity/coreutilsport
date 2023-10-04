@@ -13,13 +13,14 @@ zopen_check_results()
 {
   chklog="$1/$2_check.log"
   chkrefined="$1/$2_check_refined.log"
+  refinetool="$1/../tools/refine-test-results" # blech 
 
   export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc od ptx readlink shred sort stat touch tr wc "
 
   expectedFailures=100
   expectedErrors=2
 
-  refinedresults=$( tools/refine-test-results "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
+  refinedresults=$( "${refinetool}" "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
   echo "${refinedresults}" >"${chkrefined}"
 
   totalTests=$( cat "${chkrefined}" | wc -l )
