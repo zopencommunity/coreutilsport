@@ -49,7 +49,7 @@ fi
 
 if $summary; then
   tabs 10
-  echo "Command\tPass\tFail\tSkip\tError"
+  echo "Category  \tPass\tFail\tSkip\tError"
   for cmd in $cmds; do
     cmdresults=$( echo "${results}" | grep -E " tests/${cmd}/" )
     pass=$( echo "${cmdresults}" | grep -E "^PASS:" | wc -l )
