@@ -10,38 +10,27 @@ export ZOPEN_CHECK_TIMEOUT=30000 # 8 hours and a bit
 
 zopen_check_results()
 {
-# Example check log file:
-#
-# TOTAL: 634
-# PASS:  79
-# SKIP:  189
-# XFAIL: 0
-# FAIL:  362
-# XPASS: 0
-# ERROR: 4
-chklog="$1/$2_check.log"
-chkrefined="$1/$2_check_refined.log"
+  chklog="$1/$2_check.log"
+  chkrefined="$1/$2_check_refined.log"
 
-export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat touch tr vdir wc yes"
+  export ZOPEN_TEST_CATEGORIES="cat cp date echo fmt groups install join md5sum misc mktemp numfmt od pinky ptx readlink realpath shred sort stat touch tr vdir wc yes"
 
-expectedFailures=363
-expectedErrors=8
-expectedPass=82
-expectedSkip=181
+  expectedFailures=56
+  expectedErrors=2
 
-refinedresults=$( tools/refine-test-results "${chklog}" ${ZOPEN_COREUTILS} )
-echo "${refinedresults}" >"${chkrefined}"
+  refinedresults=$( tools/refine-test-results "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
+  echo "${refinedresults}" >"${chkrefined}"
 
-totalTests=$( cat "${chkrefined}" | wc -l )
+  totalTests=$( cat "${chkrefined}" | wc -l )
 
-actualPass=$(echo "${refinedresults}" | grep -E "^PASS:" | wc -l )
-actualFailures=$(echo "${refinedresults}" | grep -E "^FAIL:" | wc -l )
-actualErrors=$(echo "${refinedresults}" | grep -E "^ERROR:" | wc -l )
-actualSkip=$(echo "${refinedresults}" | grep -E "^SKIP:" | wc -l )
+  actualPass=$(echo "${refinedresults}" | grep -E "^PASS:" | wc -l )
+  actualFailures=$(echo "${refinedresults}" | grep -E "^FAIL:" | wc -l )
+  actualErrors=$(echo "${refinedresults}" | grep -E "^ERROR:" | wc -l )
+  actualSkip=$(echo "${refinedresults}" | grep -E "^SKIP:" | wc -l )
 
-totalExpectedFailures=$(($expectedFailures+$expectedErrors))
-totalActualFailures=$(($actualFailures+$actualErrors))
-totalRunTests=$(($totalTests-$actualSkip))
+  totalExpectedFailures=$(($expectedFailures+$expectedErrors))
+  totalActualFailures=$(($actualFailures+$actualErrors))
+  totalRunTests=$(($totalTests-$actualSkip))
 
 cat <<ZZ
 actualFailures:$totalActualFailures
@@ -53,6 +42,7 @@ ZZ
 zopen_post_install() 
 {
 
+  export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat touch tr vdir wc yes"
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name '${install}'"
