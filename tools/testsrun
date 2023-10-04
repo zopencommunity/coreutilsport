@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# simple script to print out how many tests have run for a log
+
+if [ $# -lt 1 ]; then
+  echo "Syntax: $0 <log file>"
+  exit 4
+fi
+
+testsrun=$( grep -E '^PASS:|^FAIL:|^SKIP:|^ERROR:' $1 | wc -l )
+
+echo "${testsrun} out of 823 (as of coreutils 9.4)"
+
+
