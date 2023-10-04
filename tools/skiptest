@@ -1,0 +1,24 @@
+#!/bin/sh
+
+#
+# This simple 'check' program takes one parameter and lets you bypass
+# the 'check' step and just writes the 'old' check log to stdout to capture it.
+# The 'old' check log is specified via ZOPEN_CHECK_OPTS
+#
+# Here is an example:
+# Build coreutilsport, pointing 'check' to the $oldlog from a previous full build - also don't activate the installed build
+# (export ZOPEN_CHECK=~/zopen/dev/coreutilsport/tools/skiptest; export ZOPEN_CHECK_OPTS=$oldlog; zopen build --no-set-active >out 2>&1)
+
+if [ $# -lt 1 ]; then
+  echo "Error - need to provide proxy log file to link to" >&2
+  exit 8
+fi
+
+if ! [ -f $1 ]; then
+  echo "File: $1 does not exist. Check failed" >&2
+  exit 8
+fi
+
+cat "$1"
+
+exit 0

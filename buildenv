@@ -11,6 +11,7 @@ export PERL="/bin/env perl"
 
 zopen_check_results()
 {
+
   chklog="$1/$2_check.log"
   chkrefined="$1/$2_check_refined.log"
   refinetool="$1/../tools/refine-test-results" # blech 
@@ -39,19 +40,27 @@ actualFailures:$totalActualFailures
 totalTests:$totalRunTests
 expectedFailures:$totalExpectedFailures
 ZZ
+
 }
 
 zopen_post_install() 
 {
-
   export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat touch tr vdir wc yes"
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name ${cmd}"
   done
 
-  # run as a child process so the directory change does not 'survive'
+  # remove unsupported binaries: run as a child process so the directory change does not 'survive'
   (cd "$1/bin" && ${findstring} -print | xargs rm)
+
+  findstring="find . -type f"
+  for cmd in $ZOPEN_COREUTILS; do
+    findstring="${findstring} ! -name ${cmd}.1"
+  done
+
+  # remove unsupported man pages: run as a child process so the directory change does not 'survive'
+  (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
 }
 
 zopen_get_version()
