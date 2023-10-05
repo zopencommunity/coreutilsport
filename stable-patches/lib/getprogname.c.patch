@@ -1,0 +1,13 @@
+diff --git a/lib/getprogname.c b/lib/getprogname.c
+index 204855a..274098b 100644
+--- a/lib/getprogname.c
++++ b/lib/getprogname.c
+@@ -213,7 +213,7 @@ getprogname (void)
+                   char *s = strdup (last_component (buf.ps_pathptr));
+                   if (s)
+                     {
+-#  if defined __XPLINK__ && __CHARSET_LIB == 1
++#if (__CHARSET_LIB == 1)
+                       /* The compiler option -qascii is in use.
+                          https://makingdeveloperslivesbetter.wordpress.com/2022/01/07/is-z-os-ascii-or-ebcdic-yes/
+                          https://www.ibm.com/docs/en/zos/2.5.0?topic=features-macros-related-compiler-option-settings
