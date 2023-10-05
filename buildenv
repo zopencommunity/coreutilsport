@@ -18,7 +18,7 @@ zopen_check_results()
 
   export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc od ptx readlink shred sort stat touch tr wc "
 
-  expectedFailures=100
+  expectedFailures=38
   expectedErrors=2
 
   refinedresults=$( "${refinetool}" "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
