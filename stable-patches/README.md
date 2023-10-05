@@ -4,9 +4,6 @@
 
 ### Missing Function on z/OS
 
-Several of the files have to be patched because the S_TYPEISSEM, S_TYPEISMQ, S_TYPE_ISSHM, S_TYPEISTMO
-macros are not defined on z/OS. 
-
 The posix_memalign function does not exist on z/OS, so posix_memalign.c has to be changed to a malloc in
 posix_memalign.c
 
@@ -29,7 +26,7 @@ basenc.c has to disable auto-conversion.
 copy.c has to copy file tags across files.
 digest.c needs to work in binary mode regardless of the O_BINARY flag
 od.c needs to have autoconversion disabled since files should be processed in binary
-
+getprogname.c needs to be patched to remove the extraneous __e2a call
 
 ### Compatibility with z/OS provided commands
 
