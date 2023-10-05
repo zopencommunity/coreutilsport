@@ -1,0 +1,23 @@
+diff --git a/lib/getprogname.c b/lib/getprogname.c
+index 204855a..354a8dc 100644
+--- a/lib/getprogname.c
++++ b/lib/getprogname.c
+@@ -213,15 +213,17 @@ getprogname (void)
+                   char *s = strdup (last_component (buf.ps_pathptr));
+                   if (s)
+                     {
+-#  if defined __XPLINK__ && __CHARSET_LIB == 1
++#if (__CHARSET_LIB == 1)
+                       /* The compiler option -qascii is in use.
+                          https://makingdeveloperslivesbetter.wordpress.com/2022/01/07/is-z-os-ascii-or-ebcdic-yes/
+                          https://www.ibm.com/docs/en/zos/2.5.0?topic=features-macros-related-compiler-option-settings
+                          So, convert the result from EBCDIC to ASCII.
+                          https://www.ibm.com/docs/en/zos/2.5.0?topic=functions-e2a-s-convert-string-from-ebcdic-ascii */
++#ifdef OLD_RUNTIME
+                       if (__e2a_s (s) == (size_t)-1)
+                         free (s);
+                       else
++#endif
+ #  endif
+                         p = s;
+                     }

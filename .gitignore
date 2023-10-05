@@ -1,5 +1,10 @@
 coreutils-9.1
+coreutils-9.4
 install
 log
 log.STABLE
 nohup.out
+new-*.txt
+old-*.txt
+new-*.sort
+old-*.sort

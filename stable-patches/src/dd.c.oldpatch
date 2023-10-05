@@ -1,0 +1,30 @@
+diff --git a/src/dd.c b/src/dd.c
+index b50b841..207e5fc 100644
+--- a/src/dd.c
++++ b/src/dd.c
+@@ -2354,7 +2354,11 @@ dd_copy (void)
+           diagnose (errno, _("cannot fstat %s"), quoteaf (output_file));
+           return EXIT_FAILURE;
+         }
+-      if (S_ISREG (stdout_stat.st_mode) || S_TYPEISSHM (&stdout_stat))
++#ifdef __MVS__
++      if (S_ISREG (stdout_stat.st_mode))
++#else
++       if (S_ISREG (stdout_stat.st_mode) || S_TYPEISSHM (&stdout_stat))
++#endif
+         {
+           off_t output_offset = lseek (STDOUT_FILENO, 0, SEEK_CUR);
+           if (0 <= output_offset && stdout_stat.st_size < output_offset)
+@@ -2515,7 +2519,11 @@ main (int argc, char **argv)
+                 }
+               else if (S_ISREG (stdout_stat.st_mode)
+                        || S_ISDIR (stdout_stat.st_mode)
+-                       || S_TYPEISSHM (&stdout_stat))
++#if !defined(__MVS__)
++                        || S_TYPEISSHM (&stdout_stat))
++#else
++)
++#endif
+                 {
+                   intmax_t isize = size;
+                   diagnose (ftruncate_errno,

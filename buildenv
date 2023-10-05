@@ -1,50 +1,66 @@
 # Set up environment variables for general build tool to operate
 #
 export ZOPEN_BUILD_LINE="STABLE"
-export ZOPEN_STABLE_URL="https://ftp.wayne.edu/gnu/coreutils/coreutils-9.1.tar.gz"
+export ZOPEN_STABLE_URL="https://ftp.gnu.org/gnu/coreutils/coreutils-9.4.tar.gz"
 export ZOPEN_STABLE_DEPS="make gzip tar curl perl automake autoconf m4 sed gettext zoslib diffutils"
 export ZOPEN_BOOTSTRAP="skip"
 export ZOPEN_EXTRA_CPPFLAGS="-DSLOW_BUT_NO_HACKS=1 -DNO_ASM -D_LARGE_TIME_API"
 export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 export ZOPEN_CHECK_TIMEOUT=30000 # 8 hours and a bit
+export PERL="/bin/env perl"
 
 zopen_check_results()
 {
-# Example check log file:
-#
-# TOTAL: 634
-# PASS:  79
-# SKIP:  189
-# XFAIL: 0
-# FAIL:  362
-# XPASS: 0
-# ERROR: 4
-chk="$1/$2_check.log"
 
-totalTests=$(grep "^# TOTAL: " ${chk} | head -1 | awk '{ print $3 }')
-actualFailures=$(grep "^# FAIL: " ${chk} | head -1 | awk '{ print $3 }')
-actualPass=$(grep "^# PASS: " ${chk} | head -1 | awk '{ print $3 }')
-actualErrors=$(grep "^# ERROR: " ${chk} | head -1 | awk '{ print $3 }')
-actualSkip=$(grep "^# SKIP: " ${chk} | head -1 | awk '{ print $3 }')
-expectedFailures=363
-expectedErrors=8
-expectedPass=82
-expectedSkip=181
-totalExpectedFailures=$(($expectedFailures+$expectedErrors))
-totalActualFailures=$(($actualFailures+$actualErrors))
-totalRunTests=$(($totalTests-$actualSkip))
+  chklog="$1/$2_check.log"
+  chkrefined="$1/$2_check_refined.log"
+  refinetool="$1/../tools/refine-test-results" # blech 
+
+  export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc od ptx readlink shred sort stat touch tr wc "
+
+  expectedFailures=38
+  expectedErrors=2
+
+  refinedresults=$( "${refinetool}" "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
+  echo "${refinedresults}" >"${chkrefined}"
+
+  totalTests=$( cat "${chkrefined}" | wc -l )
+
+  actualPass=$(echo "${refinedresults}" | grep -E "^PASS:" | wc -l )
+  actualFailures=$(echo "${refinedresults}" | grep -E "^FAIL:" | wc -l )
+  actualErrors=$(echo "${refinedresults}" | grep -E "^ERROR:" | wc -l )
+  actualSkip=$(echo "${refinedresults}" | grep -E "^SKIP:" | wc -l )
+
+  totalExpectedFailures=$(($expectedFailures+$expectedErrors))
+  totalActualFailures=$(($actualFailures+$actualErrors))
+  totalRunTests=$(($totalTests-$actualSkip))
 
 cat <<ZZ
 actualFailures:$totalActualFailures
 totalTests:$totalRunTests
 expectedFailures:$totalExpectedFailures
 ZZ
+
 }
 
 zopen_post_install() 
 {
-  # run as a child process so the directory change does not 'survive'
-   (cd "$1/bin" && find . -type f ! -name "install" ! -name "md5sum" ! -name "mktemp" ! -name "tr" ! -name "readlink" ! -name "realpath" ! -name "sha*sum" ! -name "fmt" ! -name "echo" ! -name "sort" ! -name "join" ! -name "cp" ! -name "od" ! -name "cat" ! -name "wc" ! -name "date" ! -name "ptx" ! -name "touch" ! -name "groups" ! -name "shred" ! -name "pinky" ! -name "numfmt" ! -name "vdir" ! -name "stat" !  -name "yes" -print | xargs rm)
+  export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat touch tr vdir wc yes"
+  findstring="find . -type f"
+  for cmd in $ZOPEN_COREUTILS; do
+    findstring="${findstring} ! -name ${cmd}"
+  done
+
+  # remove unsupported binaries: run as a child process so the directory change does not 'survive'
+  (cd "$1/bin" && ${findstring} -print | xargs rm)
+
+  findstring="find . -type f"
+  for cmd in $ZOPEN_COREUTILS; do
+    findstring="${findstring} ! -name ${cmd}.1"
+  done
+
+  # remove unsupported man pages: run as a child process so the directory change does not 'survive'
+  (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
 }
 
 zopen_get_version()

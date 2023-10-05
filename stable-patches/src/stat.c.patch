@@ -1,21 +1,24 @@
 diff --git a/src/stat.c b/src/stat.c
-index 3765a8f..e9f84a6 100644
+index dd86450..4c9aaf5 100644
 --- a/src/stat.c
 +++ b/src/stat.c
-@@ -102,7 +102,12 @@
+@@ -98,7 +98,14 @@
  # elif HAVE_STRUCT_STATFS_F_NAMEMAX
  #  define SB_F_NAMEMAX(S) ((S)->f_namemax)
  # endif
+-# define STATFS statfs
++
 +#ifdef __MVS__
 +#include <sys/statfs.h>
 +# define STATFS w_statfs
 +#else
- # define STATFS statfs
++ # define STATFS statfs
 +#endif
++
  # if HAVE_OS_H /* BeOS */
  /* BeOS has a statvfs function, but it does not return sensible values
     for f_files, f_ffree and f_favail, and lacks f_type, f_basetype and
-@@ -136,7 +141,11 @@ statfs (char const *filename, struct fs_info *buf)
+@@ -132,7 +139,11 @@ statfs (char const *filename, struct fs_info *buf)
  #  define STRUCT_STATXFS_F_FSID_IS_INTEGER true
  #  define STATFS_FRSIZE(S) ((S)->block_size)
  # else
@@ -27,87 +30,97 @@ index 3765a8f..e9f84a6 100644
  #  define STRUCT_STATXFS_F_FSID_IS_INTEGER STRUCT_STATFS_F_FSID_IS_INTEGER
  #  if HAVE_STRUCT_STATFS_F_FRSIZE
  #   define STATFS_FRSIZE(S) ((S)->f_frsize)
-@@ -261,8 +270,10 @@ NODISCARD
+@@ -257,8 +268,12 @@ NODISCARD
  static char const *
  human_fstype (STRUCT_STATVFS const *statfsbuf)
  {
 -#ifdef STATXFS_FILE_SYSTEM_TYPE_MEMBER_NAME
-+#if defined (STATXFS_FILE_SYSTEM_TYPE_MEMBER_NAME) && ! defined (__MVS__)
-   return statfsbuf->STATXFS_FILE_SYSTEM_TYPE_MEMBER_NAME;
-+#elif __MVS__
++#ifdef STATXFS_FILE_SYSTEM_TYPE_MEMBER_NAME 
++#if defined __MVS__
 +  return 0;
++#else
+   return statfsbuf->STATXFS_FILE_SYSTEM_TYPE_MEMBER_NAME;
++#endif
  #else
    switch (statfsbuf->f_type)
      {
-@@ -877,6 +888,8 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -873,6 +888,9 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
        {
  #if STRUCT_STATXFS_F_FSID_IS_INTEGER
          uintmax_t fsid = statfsbuf->f_fsid;
++        out_uint_x (pformat, prefix_len, fsid);
 +#elif __MVS__
-+  break;
++        ;
  #else
          typedef unsigned int fsid_word;
-         verify (alignof (STRUCT_STATVFS) % alignof (fsid_word) == 0);
-@@ -894,7 +907,7 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+         static_assert (alignof (STRUCT_STATVFS) % alignof (fsid_word) == 0);
+@@ -890,8 +908,8 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+             uintmax_t u = p[words - 1 - i];
              fsid |= u << (i * CHAR_BIT * sizeof *p);
            }
- #endif
--        out_uint_x (pformat, prefix_len, fsid);
-+        //out_uint_x (pformat, prefix_len, fsid);
+-#endif
+         out_uint_x (pformat, prefix_len, fsid);
++#endif
        }
        break;
  
-@@ -912,30 +925,32 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -909,30 +927,44 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
        out_string (pformat, prefix_len, human_fstype (statfsbuf));
        break;
      case 'b':
--      out_int (pformat, prefix_len, statfsbuf->f_blocks);
-+      //out_int (pformat, prefix_len, statfsbuf->f_blocks);
++#ifndef __MVS__
+       out_int (pformat, prefix_len, statfsbuf->f_blocks);
++#endif
        break;
      case 'f':
--      out_int (pformat, prefix_len, statfsbuf->f_bfree);
-+      //out_int (pformat, prefix_len, statfsbuf->f_bfree);
++#ifndef __MVS__
+       out_int (pformat, prefix_len, statfsbuf->f_bfree);
++#endif
        break;
      case 'a':
--      out_int (pformat, prefix_len, statfsbuf->f_bavail);
-+      //out_int (pformat, prefix_len, statfsbuf->f_bavail);
++#ifndef __MVS__
+       out_int (pformat, prefix_len, statfsbuf->f_bavail);
++#endif
        break;
      case 's':
--      out_uint (pformat, prefix_len, statfsbuf->f_bsize);
-+      //out_uint (pformat, prefix_len, statfsbuf->f_bsize);
++#ifndef __MVS__
+       out_uint (pformat, prefix_len, statfsbuf->f_bsize);
++#endif
        break;
      case 'S':
        {
-+/*
++#ifndef __MVS__
          uintmax_t frsize = STATFS_FRSIZE (statfsbuf);
          if (! frsize)
            frsize = statfsbuf->f_bsize;
          out_uint (pformat, prefix_len, frsize);
-+*/
++#endif
        }
        break;
      case 'c':
--      out_uint (pformat, prefix_len, statfsbuf->f_files);
-+      //out_uint (pformat, prefix_len, statfsbuf->f_files);
++#ifndef __MVS__
+       out_uint (pformat, prefix_len, statfsbuf->f_files);
++#endif
        break;
      case 'd':
--      out_int (pformat, prefix_len, statfsbuf->f_ffree);
-+      //out_int (pformat, prefix_len, statfsbuf->f_ffree);
++#ifndef __MVS__
+       out_int (pformat, prefix_len, statfsbuf->f_ffree);
++#endif
        break;
      default:
        fputc ('?', stdout);
-@@ -1270,12 +1285,12 @@ do_statfs (char const *filename, char const *format)
+@@ -1267,12 +1299,14 @@ do_statfs (char const *filename, char const *format)
        return false;
      }
  
--  if (STATFS (filename, &statfsbuf) != 0)
-+  /*if (STATFS (filename, &statfsbuf) != 0)
++#ifndef __MVS__
+   if (STATFS (filename, &statfsbuf) != 0)
      {
        error (0, errno, _("cannot read file system information for %s"),
               quoteaf (filename));
        return false;
--    }
-+    }*/
+     }
++#endif
  
    bool fail = print_it (format, -1, filename, print_statfs, &statfsbuf);
    return ! fail;

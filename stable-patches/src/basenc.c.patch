@@ -1,0 +1,15 @@
+diff --git a/src/basenc.c b/src/basenc.c
+index ce259c4..32378fc 100644
+--- a/src/basenc.c
++++ b/src/basenc.c
+@@ -1235,7 +1235,9 @@ main (int argc, char **argv)
+       if (input_fh == nullptr)
+         error (EXIT_FAILURE, errno, "%s", quotef (infile));
+     }
+-
++#ifdef __MVS__
++  __disableautocvt(fileno(input_fh));
++#endif
+   fadvise (input_fh, FADVISE_SEQUENTIAL);
+ 
+   if (decode)
