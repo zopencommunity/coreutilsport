@@ -39,28 +39,3 @@ underlying z/OS `/bin/cp` command will be called.
 
 The intent is to patch other commands that are analagous, such as `cat`. 
 
-### Possible bugs in base code
-
-
-
-The following patches are required:
-
-```
-./build-aux/test-driver.patch
-./lib/fdopendir.c.patch
-./lib/posix_memalign.c.patch
-./lib/filemode.c.patch
-./src/copy.c.patch
-./src/cp.c.patch
-./src/pinky.c.patch
-./src/basenc.c.patch
-./src/digest.c.patch
-./src/od.c.patch
-./src/stat.c.patch
-./src/timeout.c.patch
-./src/dd.c.patch
-./src/shred.c.patch
-./src/sort.c.patch
-./src/split.c.patch
-./src/system.h.patch
-```
