@@ -1,5 +1,5 @@
 diff --git a/src/cat.c b/src/cat.c
-index ac39a48..275ab62 100644
+index ac39a48..53bad79 100644
 --- a/src/cat.c
 +++ b/src/cat.c
 @@ -532,6 +532,35 @@ copy_cat (void)
@@ -8,7 +8,7 @@ index ac39a48..275ab62 100644
  
 +#ifdef __MVS__
 +#define MVS_CAT "/bin/cat"
-+#define MVS_CAT (sizeof(MVS_CAT)-1)
++#define MVS_CAT_LEN (sizeof(MVS_CAT)-1)
 +#include <unistd.h>
 +#include <sys/types.h>
 +#include <sys/wait.h>
@@ -48,8 +48,8 @@ index ac39a48..275ab62 100644
 +
 +    for (i=0; i<argc; ++i) {
 +      if (argv[i][0] == '/' && argv[i][1] == '/') {
-+        ok = do_mvs_cat(argc, argv);
-+        main_exit (ok ? EXIT_SUCCESS : EXIT_FAILURE);
++        bool mvsok = do_mvs_cat(argc, argv);
++        main_exit (mvsok ? EXIT_SUCCESS : EXIT_FAILURE);
 +      }
 +    }
 +  }
