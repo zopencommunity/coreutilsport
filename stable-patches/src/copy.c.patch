@@ -1,27 +1,19 @@
 diff --git a/src/copy.c b/src/copy.c
-index b9fff03..4683399 100644
+index b9fff03..554e433 100644
 --- a/src/copy.c
 +++ b/src/copy.c
-@@ -1216,6 +1216,18 @@ handle_clone_fail (int dst_dirfd, char const *dst_relname,
-   return true;
- }
+@@ -113,6 +113,10 @@
+ # define CAN_HARDLINK_SYMLINKS 0
+ #endif
  
 +#ifdef __MVS__
-+int __setfdccsid(int fd, int t_ccsid) 
-+{
-+  attrib_t attr;
-+  memset(&attr, 0, sizeof(attr));
-+  attr.att_filetagchg = 1;
-+  attr.att_filetag.ft_txtflag = (t_ccsid >> 16);
-+  attr.att_filetag.ft_ccsid = (t_ccsid & 0x0ffff);
-+  return __fchattr(fd, &attr, sizeof(attr));
-+}
++# include "zos-io.h"
 +#endif
 +
- 
- /* Copy a regular file from SRC_NAME to DST_NAME aka DST_DIRFD+DST_RELNAME.
-    If the source file contains holes, copies holes and blocks of zeros
-@@ -1507,6 +1519,11 @@ copy_reg (char const *src_name, char const *dst_name,
+ struct dir_list
+ {
+   struct dir_list *parent;
+@@ -1507,6 +1511,11 @@ copy_reg (char const *src_name, char const *dst_name,
        goto close_src_desc;
      }
  

@@ -26,7 +26,7 @@ basenc.c has to disable auto-conversion.
 copy.c has to copy file tags across files.
 digest.c needs to work in binary mode regardless of the O_BINARY flag
 od.c needs to have autoconversion disabled since files should be processed in binary
-getprogname.c needs to be patched to remove the extraneous __e2a call
+getprogname.c needs to be patched to remove the extraneous `__e2a` call
 
 ### Compatibility with z/OS provided commands
 

@@ -1,7 +1,7 @@
 Category  Pass      Fail      Skip      Error
 cat       3         0         2         0
 cksum     18        0         2         0
-cp        42        6         34        2
+cp        43        6         32        2
 date      3         2         2         0
 echo      0         0         0         0
 fmt       3         2         0         0
