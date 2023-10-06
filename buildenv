@@ -1,5 +1,3 @@
-# Set up environment variables for general build tool to operate
-#
 export ZOPEN_BUILD_LINE="STABLE"
 export ZOPEN_STABLE_URL="https://ftp.gnu.org/gnu/coreutils/coreutils-9.4.tar.gz"
 export ZOPEN_STABLE_DEPS="make gzip tar curl perl automake autoconf m4 sed gettext zoslib diffutils"
