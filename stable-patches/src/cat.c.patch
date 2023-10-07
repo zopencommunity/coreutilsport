@@ -1,0 +1,60 @@
+diff --git a/src/cat.c b/src/cat.c
+index ac39a48..53bad79 100644
+--- a/src/cat.c
++++ b/src/cat.c
+@@ -532,6 +532,35 @@ copy_cat (void)
+       }
+ }
+ 
++#ifdef __MVS__
++#define MVS_CAT "/bin/cat"
++#define MVS_CAT_LEN (sizeof(MVS_CAT)-1)
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++static bool
++do_mvs_cat (int argc, char **argv)
++{
++
++  pid_t pid = fork();
++  if (pid == 0) {
++    argv[0] = MVS_CAT;
++    execvp(MVS_CAT, argv);
++  } else if (pid > 0) {
++    int wstatus;
++    pid_t waitchild = waitpid(pid, &wstatus, WUNTRACED | WCONTINUED);
++    if (waitchild == -1) {
++      perror("waitpid");
++      return false;
++    }
++    if (WIFEXITED(wstatus)) {
++      return WEXITSTATUS(wstatus) == 0 ? true : false;
++    } else if (WIFSIGNALED(wstatus)) {
++      fprintf(stderr, "killed by signal %d\n", WTERMSIG(wstatus));
++    }
++  }
++}
++#endif
+ 
+ int
+ main (int argc, char **argv)
+@@ -564,6 +593,19 @@ main (int argc, char **argv)
+     {nullptr, 0, nullptr, 0}
+   };
+ 
++#ifdef __MVS__
++  {
++    int i;
++
++    for (i=0; i<argc; ++i) {
++      if (argv[i][0] == '/' && argv[i][1] == '/') {
++        bool mvsok = do_mvs_cat(argc, argv);
++        main_exit (mvsok ? EXIT_SUCCESS : EXIT_FAILURE);
++      }
++    }
++  }
++#endif
++
+   initialize_main (&argc, &argv);
+   set_program_name (argv[0]);
+   setlocale (LC_ALL, "");

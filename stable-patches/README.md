@@ -34,8 +34,6 @@ Many of the commands in coreutils are also part of z/OS. In some cases, the capa
 is a proper superset of the z/OS function, and there is no migration issue.
 In other cases, z/OS has special support added for z/OS specific capabilities, most notably datasets.
 
-cp.c has been patched so that if a file in the list of files to process starts with '//', then the 
-underlying z/OS `/bin/cp` command will be called.
-
-The intent is to patch other commands that are analagous, such as `cat`. 
+cp.c and cat.c have been patched so that if a file in the list of files to process starts with '//', 
+then the underlying z/OS `/bin/xxx` command will be called.
 
