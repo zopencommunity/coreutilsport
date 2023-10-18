@@ -6,7 +6,7 @@ export ZOPEN_EXTRA_CPPFLAGS="-DSLOW_BUT_NO_HACKS=1 -DNO_ASM -D_LARGE_TIME_API"
 export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 export ZOPEN_CHECK_TIMEOUT=30000 # 8 hours and a bit
 export PERL="/bin/env perl"
-
+export ZOPEN_COMP=CLANG
 zopen_check_results()
 {
 
@@ -43,7 +43,7 @@ ZZ
 
 zopen_post_install() 
 {
-  export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat touch tr vdir wc yes"
+  export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat stdbuf touch tr vdir wc yes"
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name ${cmd}"
