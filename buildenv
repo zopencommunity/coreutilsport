@@ -19,7 +19,7 @@ zopen_check_results()
 
   export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc od ptx readlink shred sort stat touch tr wc "
 
-  expectedFailures=38
+  expectedFailures=40
   expectedErrors=2
 
   refinedresults=$( "${refinetool}" "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
@@ -46,7 +46,7 @@ ZZ
 
 zopen_post_install() 
 {
-  export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat stdbuf touch tr vdir wc yes"
+  export ZOPEN_COREUTILS="cat cp date echo fmt groups install join md5sum mkfifo mktemp numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum shred sort stat stdbuf touch tr vdir wc yes"
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name ${cmd}"
