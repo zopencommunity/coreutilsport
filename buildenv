@@ -1,5 +1,8 @@
+# bump: coreutils-version /COREUTILS_VERSION="(.*)"/ https://ftp.gnu.org/gnu/coreutils/|re:/href="coreutils-([\d.]+).tar.gz"/$1/|semver:*
+COREUTILS_VERSION="9.4"
+
 export ZOPEN_BUILD_LINE="STABLE"
-export ZOPEN_STABLE_URL="https://ftp.gnu.org/gnu/coreutils/coreutils-9.4.tar.gz"
+export ZOPEN_STABLE_URL="https://ftp.gnu.org/gnu/coreutils/coreutils-${COREUTILS_VERSION}.tar.gz"
 export ZOPEN_STABLE_DEPS="make gzip tar curl perl automake autoconf m4 sed gettext zoslib diffutils"
 export ZOPEN_BOOTSTRAP="skip"
 export ZOPEN_EXTRA_CPPFLAGS="-DSLOW_BUT_NO_HACKS=1 -DNO_ASM -D_LARGE_TIME_API"
