@@ -1,0 +1,15 @@
+diff --git a/lib/nproc.c b/lib/nproc.c
+index e3de187..b2ab757 100644
+--- a/lib/nproc.c
++++ b/lib/nproc.c
+@@ -336,6 +336,10 @@ num_processors_ignoring_omp (enum nproc_query query)
+   }
+ #endif
+ 
++#if defined(__MVS__)
++  return __get_num_online_cpus();
++#endif
++
+   return 1;
+ }
+ 
