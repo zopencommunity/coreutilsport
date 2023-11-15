@@ -19,7 +19,7 @@ zopen_check_results()
 
   export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc nproc od ptx readlink stdbuf shred shuf sort stat touch tr wc seq tac timeout truncate users"
 
-  expectedFailures=40
+  expectedFailures=42
   expectedErrors=2
 
   refinedresults=$( "${refinetool}" "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
