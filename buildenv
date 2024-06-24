@@ -44,6 +44,11 @@ ZZ
 
 }
 
+zopen_pre_patch()
+{
+  export CFLAGS="$CFLAGS $CPPFLAGS"
+}
+
 zopen_post_install() 
 {
   export ZOPEN_COREUTILS="cat cp date echo fmt groups head install join md5sum mkfifo mktemp nproc numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf touch tr vdir wc yes seq tac timeout truncate users"
