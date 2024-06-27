@@ -1,5 +1,5 @@
 # bump: coreutils-version /COREUTILS_VERSION="(.*)"/ https://ftp.gnu.org/gnu/coreutils/|re:/href="coreutils-([\d.]+).tar.gz"/$1/|semver:*
-COREUTILS_VERSION="9.4"
+COREUTILS_VERSION="9.5"
 
 export ZOPEN_BUILD_LINE="STABLE"
 export ZOPEN_STABLE_URL="https://ftp.gnu.org/gnu/coreutils/coreutils-${COREUTILS_VERSION}.tar.gz"
@@ -20,7 +20,7 @@ zopen_check_results()
 
   export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc nproc od ptx readlink stdbuf shred shuf sort stat sync touch tr wc seq tac timeout truncate users"
 
-  expectedFailures=42
+  expectedFailures=44
   expectedErrors=2
 
   refinedresults=$( "${refinetool}" "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
@@ -88,7 +88,7 @@ zopen_install_caveats()
 {
 cat <<ZZ
 GNU coreutils have been installed with the prefix "g" under bin/ to avoid collision with z/OS /bin/ tools.
-If you prefer to use the coreutils as is, source `zopen-config` with the option --override-zos-tools.
+If you prefer to use the coreutils as is, source zopen-config with the option --override-zos-tools.
 Or add \$ZOPEN_ROOTFS/usr/local/altbin to your \$PATH.
 ZZ
 }
