@@ -3,13 +3,14 @@ COREUTILS_VERSION="9.4"
 
 export ZOPEN_BUILD_LINE="STABLE"
 export ZOPEN_STABLE_URL="https://ftp.gnu.org/gnu/coreutils/coreutils-${COREUTILS_VERSION}.tar.gz"
-export ZOPEN_STABLE_DEPS="make gzip tar curl perl automake autoconf m4 sed gettext zoslib diffutils"
+export ZOPEN_STABLE_DEPS="make gzip tar curl perl automake autoconf m4 sed gettext zoslib diffutils findutils"
 export ZOPEN_BOOTSTRAP="skip"
 export ZOPEN_EXTRA_CPPFLAGS="-DSLOW_BUT_NO_HACKS=1 -DNO_ASM -D_LARGE_TIME_API"
 export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 export ZOPEN_CHECK_TIMEOUT=30000 # 8 hours and a bit
 export PERL="/bin/env perl"
 export ZOPEN_COMP=CLANG
+
 zopen_check_results()
 {
 
@@ -17,7 +18,7 @@ zopen_check_results()
   chkrefined="$1/$2_check_refined.log"
   refinetool="$1/../tools/refine-test-results" # blech 
 
-  export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc nproc od ptx readlink stdbuf shred shuf sort stat touch tr wc seq tac timeout truncate users"
+  export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc nproc od ptx readlink stdbuf shred shuf sort stat sync touch tr wc seq tac timeout truncate users"
 
   expectedFailures=42
   expectedErrors=2
@@ -51,7 +52,7 @@ zopen_pre_patch()
 
 zopen_post_install() 
 {
-  export ZOPEN_COREUTILS="cat cp date echo fmt groups head install join md5sum mkfifo mktemp nproc numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf touch tr vdir wc yes seq tac timeout truncate users"
+  export ZOPEN_COREUTILS="b2sum base32 base64 basename blake2 cat chcon chgrp chmod chown chroot chksum comm cp csplit cut date dd df dir dircolors dirname du echo env expand expr factor false fmt groups head id install join ls md5sum mkfifo mktemp mknod nproc numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf sync sleep touch tr tty vdir wc yes seq tac timeout truncate users"
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name ${cmd}"
@@ -60,6 +61,20 @@ zopen_post_install()
   # remove unsupported binaries: run as a child process so the directory change does not 'survive'
   (cd "$1/bin" && ${findstring} -print | xargs rm)
 
+  mkdir $ZOPEN_INSTALL_DIR/altbin
+
+  # Add g prefix to all collding tools in bin/ and create symlinks
+  find $1/bin -type f -exec sh -c '
+  for file; do
+    dir=$(dirname "$file")
+    base=$(basename "$file")
+    if [ ! -f "/bin/$base" ]; then
+      mv "$file" "$dir/g$base"
+      ln -s "../bin/g$base" "$ZOPEN_INSTALL_DIR/altbin/$base"
+    fi
+  done
+' sh {} +
+
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name ${cmd}.1"
@@ -67,6 +82,15 @@ zopen_post_install()
 
   # remove unsupported man pages: run as a child process so the directory change does not 'survive'
   (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
+}
+
+zopen_caveat()
+{
+cat <<ZZ
+GNU coreutils have been installed with the prefix "g" under bin/ to avoid collision with z/OS /bin/ tools.
+If you prefer to use the coreutils as is, source `zopen-config` with the option --override-zos-tools.
+Or add \$ZOPEN_ROOTFS/usr/local/altbin to your \$PATH.
+ZZ
 }
 
 zopen_get_version()
