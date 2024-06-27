@@ -84,7 +84,7 @@ zopen_post_install()
   (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
 }
 
-zopen_caveat()
+zopen_install_caveats()
 {
 cat <<ZZ
 GNU coreutils have been installed with the prefix "g" under bin/ to avoid collision with z/OS /bin/ tools.
