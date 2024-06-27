@@ -79,6 +79,15 @@ zopen_post_install()
   (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
 }
 
+zopen_caveat()
+{
+cat <<ZZ
+GNU coreutils have been installed with the prefix "g" under bin/ to avoid collision with z/OS /bin/ tools.
+If you prefer to use the coreutils as is, source `zopen-config` with the option --override-zos-tools.
+Or add \$ZOPEN_ROOTFS/usr/local/altbin to your \$PATH.
+ZZ
+}
+
 zopen_get_version()
 {
   # pick one of the tools
