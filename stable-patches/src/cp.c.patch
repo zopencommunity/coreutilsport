@@ -1,8 +1,8 @@
 diff --git a/src/cp.c b/src/cp.c
-index 04a5cbe..c587b4f 100644
+index 28b0217..6bdc450 100644
 --- a/src/cp.c
 +++ b/src/cp.c
-@@ -601,6 +601,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
+@@ -607,6 +607,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
    return true;
  }
  
@@ -39,9 +39,9 @@ index 04a5cbe..c587b4f 100644
  /* Scan the arguments, and copy each by calling copy.
     Return true if successful.  */
  
-@@ -978,6 +1008,20 @@ main (int argc, char **argv)
-   bool no_target_directory = false;
+@@ -986,6 +1016,19 @@ main (int argc, char **argv)
    char const *scontext = nullptr;
+   bool no_clobber = false;
  
 +#ifdef __MVS__
 +  {
@@ -55,7 +55,6 @@ index 04a5cbe..c587b4f 100644
 +    }
 +  }
 +#endif
-+
 +
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
