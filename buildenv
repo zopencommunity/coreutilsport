@@ -68,7 +68,7 @@ zopen_post_install()
   for file; do
     dir=$(dirname "$file")
     base=$(basename "$file")
-    if [ ! -f "/bin/$base" ]; then
+    if [ -f "/bin/$base" ]; then
       mv "$file" "$dir/g$base"
       ln -s "../bin/g$base" "$ZOPEN_INSTALL_DIR/altbin/$base"
     fi
