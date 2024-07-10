@@ -1,12 +1,13 @@
 diff --git a/src/od.c b/src/od.c
-index 3ad2565..b585be5 100644
+index d23df2c..986b6a5 100644
 --- a/src/od.c
 +++ b/src/od.c
-@@ -919,6 +919,10 @@ open_next_file (void)
+@@ -981,6 +981,11 @@ open_next_file (void)
      }
    while (in_stream == nullptr);
  
 +#ifdef __MVS__
++  if (!isatty(fileno(in_stream)))
 +  __disableautocvt(fileno(in_stream));
 +#endif
 +
