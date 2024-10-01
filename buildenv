@@ -62,18 +62,7 @@ zopen_post_install()
   (cd "$1/bin" && ${findstring} -print | xargs rm)
 
   mkdir $ZOPEN_INSTALL_DIR/altbin
-
-  # Add g prefix to all collding tools in bin/ and create symlinks
-  find $1/bin -type f -exec sh -c '
-  for file; do
-    dir=$(dirname "$file")
-    base=$(basename "$file")
-    if [ -f "/bin/$base" ]; then
-      mv "$file" "$dir/g$base"
-      ln -s "../bin/g$base" "$ZOPEN_INSTALL_DIR/altbin/$base"
-    fi
-  done
-' sh {} +
+  mkdir -p $ZOPEN_INSTALL_DIR/share/altman/man1
 
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
@@ -82,14 +71,30 @@ zopen_post_install()
 
   # remove unsupported man pages: run as a child process so the directory change does not 'survive'
   (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
+
+  # Add g prefix to all collding tools and manpages in bin/ and create symlinks
+  find $1/bin -type f -exec sh -c '
+  for file; do
+    dir=$(dirname "$file")
+    base=$(basename "$file")
+    if [ -f "/bin/$base" ]; then
+      mv "$file" "$dir/g$base"
+      ln -s "../bin/g$base" "$ZOPEN_INSTALL_DIR/altbin/$base"
+
+      mv "$ZOPEN_INSTALL_DIR/share/man/man1/$base.1"  "$ZOPEN_INSTALL_DIR/share/man/man1/g$base.1"
+      ln -s "../../man/man1/g$base.1" "$ZOPEN_INSTALL_DIR/share/altman/man1/$base.1"
+    fi
+  done
+' sh {} +
+
 }
 
 zopen_install_caveats()
 {
 cat <<ZZ
 GNU coreutils have been installed with the prefix "g" under bin/ to avoid collision with z/OS /bin/ tools.
+The conflicting manpages have been installed under the share/altman dir. You can use zotman to view them.
 If you prefer to use the coreutils as is, source zopen-config with the option --override-zos-tools.
-Or add \$ZOPEN_ROOTFS/usr/local/altbin to your \$PATH.
 ZZ
 }
 
