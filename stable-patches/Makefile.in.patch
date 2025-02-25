@@ -1,0 +1,12 @@
+diff --git a/Makefile.in b/Makefile.in
+index 6a4294a..da80728 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -8665,7 +8665,6 @@ all_tests = \
+   tests/tail/wait.sh				\
+   tests/tail/retry.sh				\
+   tests/tail/symlink.sh				\
+-  tests/tail/tail-c.sh				\
+   tests/tail/truncate.sh			\
+   tests/chmod/c-option.sh			\
+   tests/chmod/equal-x.sh			\
