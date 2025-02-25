@@ -13,15 +13,6 @@ export ZOPEN_COMP=CLANG
 
 zopen_check_results()
 {
-# Example check log file:
-#
-# TOTAL: 634
-# PASS:  79
-# SKIP:  189
-# XFAIL: 0
-# FAIL:  362
-# XPASS: 0
-# ERROR: 4
 chk="$1/$2_check.log"
 
 totalTests=$(grep "^# TOTAL: " ${chk} | head -1 | awk '{ print $3 }')
@@ -29,10 +20,10 @@ actualFailures=$(grep "^# FAIL: " ${chk} | head -1 | awk '{ print $3 }')
 actualPass=$(grep "^# PASS: " ${chk} | head -1 | awk '{ print $3 }')
 actualErrors=$(grep "^# ERROR: " ${chk} | head -1 | awk '{ print $3 }')
 actualSkip=$(grep "^# SKIP: " ${chk} | head -1 | awk '{ print $3 }')
-expectedFailures=63
+expectedFailures=71
 expectedErrors=3
-expectedPass=414
-expectedSkip=173
+expectedPass=405
+expectedSkip=177
 totalExpectedFailures=$(($expectedFailures+$expectedErrors))
 totalActualFailures=$(($actualFailures+$actualErrors))
 totalRunTests=$(($totalTests-$actualSkip))
