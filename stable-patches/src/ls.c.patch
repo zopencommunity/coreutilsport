@@ -1,8 +1,8 @@
 diff --git a/src/ls.c b/src/ls.c
-index f5ac98d..0f5cc72 100644
+index 3215360..d7dd1c8 100644
 --- a/src/ls.c
 +++ b/src/ls.c
-@@ -115,6 +115,38 @@
+@@ -113,6 +113,38 @@
  #include "canonicalize.h"
  #include "statx.h"
  
@@ -41,7 +41,7 @@ index f5ac98d..0f5cc72 100644
  /* Include <sys/capability.h> last to avoid a clash of <sys/types.h>
     include guards with some premature versions of libcap.
     For more details, see <https://bugzilla.redhat.com/483548>.  */
-@@ -1926,7 +1958,7 @@ decode_switches (int argc, char **argv)
+@@ -1965,7 +1997,7 @@ decode_switches (int argc, char **argv)
      {
        int oi = -1;
        int c = getopt_long (argc, argv,
@@ -50,7 +50,7 @@ index f5ac98d..0f5cc72 100644
                             long_options, &oi);
        if (c == -1)
          break;
-@@ -1949,6 +1981,15 @@ decode_switches (int argc, char **argv)
+@@ -1989,6 +2021,15 @@ decode_switches (int argc, char **argv)
            immediate_dirs = true;
            break;
  
@@ -66,7 +66,7 @@ index f5ac98d..0f5cc72 100644
          case 'f':
            ignore_mode = IGNORE_MINIMAL; /* enable -a */
            sort_opt = sort_none;         /* enable -U */
-@@ -2110,9 +2151,17 @@ decode_switches (int argc, char **argv)
+@@ -2146,10 +2187,17 @@ decode_switches (int argc, char **argv)
            break;
  
          case 'T':
@@ -78,9 +78,10 @@ index f5ac98d..0f5cc72 100644
 +          break;
 +#else
            tabsize_opt = xnumtoumax (optarg, 0, 0, MIN (PTRDIFF_MAX, SIZE_MAX),
-                                     "", _("invalid tab size"), LS_FAILURE);
+                                     "", _("invalid tab size"), LS_FAILURE, 0);
            break;
+-
 +#endif
- 
          case 'U':
            sort_opt = sort_none;
+           break;
