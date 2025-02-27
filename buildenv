@@ -13,26 +13,34 @@ export ZOPEN_COMP=CLANG
 
 zopen_check_results()
 {
-chk="$1/$2_check.log"
+  chkrefined="$1/$2_check_refined.log"
+  refinetool="$1/../tools/refine-test-results" # blech 
 
-totalTests=$(grep "^# TOTAL: " ${chk} | head -1 | awk '{ print $3 }')
-actualFailures=$(grep "^# FAIL: " ${chk} | head -1 | awk '{ print $3 }')
-actualPass=$(grep "^# PASS: " ${chk} | head -1 | awk '{ print $3 }')
-actualErrors=$(grep "^# ERROR: " ${chk} | head -1 | awk '{ print $3 }')
-actualSkip=$(grep "^# SKIP: " ${chk} | head -1 | awk '{ print $3 }')
-expectedFailures=71
-expectedErrors=3
-expectedPass=405
-expectedSkip=177
-totalExpectedFailures=$(($expectedFailures+$expectedErrors))
-totalActualFailures=$(($actualFailures+$actualErrors))
-totalRunTests=$(($totalTests-$actualSkip))
+  export ZOPEN_TEST_CATEGORIES="cat cksum cp date echo fmt groups install misc nproc od ptx readlink stdbuf shred shuf sort stat sync touch tr wc seq tac timeout truncate users"
+
+  expectedFailures=44
+  expectedErrors=2
+
+  refinedresults=$( "${refinetool}" "${chklog}" ${ZOPEN_TEST_CATEGORIES} )
+  echo "${refinedresults}" >"${chkrefined}"
+
+  totalTests=$( cat "${chkrefined}" | wc -l )
+
+  actualPass=$(echo "${refinedresults}" | grep -E "^PASS:" | wc -l )
+  actualFailures=$(echo "${refinedresults}" | grep -E "^FAIL:" | wc -l )
+  actualErrors=$(echo "${refinedresults}" | grep -E "^ERROR:" | wc -l )
+  actualSkip=$(echo "${refinedresults}" | grep -E "^SKIP:" | wc -l )
+
+  totalExpectedFailures=$(($expectedFailures+$expectedErrors))
+  totalActualFailures=$(($actualFailures+$actualErrors))
+  totalRunTests=$(($totalTests-$actualSkip))
 
 cat <<ZZ
 actualFailures:$totalActualFailures
 totalTests:$totalRunTests
 expectedFailures:$totalExpectedFailures
 ZZ
+
 }
 
 zopen_pre_patch()
@@ -42,8 +50,25 @@ zopen_pre_patch()
 
 zopen_post_install() 
 {
+  export ZOPEN_COREUTILS="b2sum base32 base64 basename blake2 cat chcon chgrp chmod chown chroot chksum comm cp csplit cut date dd dir dircolors dirname df du echo env expand expr factor false fmt groups head id install join ls md5sum mkfifo mktemp mknod nproc numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf sync sleep touch tr tty vdir wc yes seq tac timeout truncate users"
+  findstring="find . -type f"
+  for cmd in $ZOPEN_COREUTILS; do
+    findstring="${findstring} ! -name ${cmd}"
+  done
+
+  # remove unsupported binaries: run as a child process so the directory change does not 'survive'
+  (cd "$1/bin" && ${findstring} -print | xargs rm)
+
   mkdir $ZOPEN_INSTALL_DIR/altbin
   mkdir -p $ZOPEN_INSTALL_DIR/share/altman/man1
+
+  findstring="find . -type f"
+  for cmd in $ZOPEN_COREUTILS; do
+    findstring="${findstring} ! -name ${cmd}.1"
+  done
+
+  # remove unsupported man pages: run as a child process so the directory change does not 'survive'
+  (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
 
   # Add g prefix to all collding tools and manpages in bin/ and create symlinks
   find $1/bin -type f -exec sh -c '
