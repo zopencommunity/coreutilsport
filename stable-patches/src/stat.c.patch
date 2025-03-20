@@ -1,8 +1,54 @@
-diff --git a/src/stat.c b/src/stat.c
-index dd86450..4c9aaf5 100644
---- a/src/stat.c
-+++ b/src/stat.c
-@@ -98,7 +98,14 @@
+diff --git i/src/stat.c w/src/stat.c
+index 3ea7da7..1de574c 100644
+--- i/src/stat.c
++++ w/src/stat.c
+@@ -18,6 +18,7 @@
+ 
+ #include <config.h>
+ 
++#define __EXT 1
+ /* Keep this conditional in sync with the similar conditional in
+    ../m4/stat-prog.m4.  */
+ #if ((STAT_STATVFS || STAT_STATVFS64)                                       \
+@@ -57,6 +58,37 @@
+ 
+ #include "system.h"
+ 
++#ifdef __MVS__
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <string.h>
++#include <stdio.h>
++#include <stdlib.h>
++
++
++char *get_filesys_name(dev_t devnum) {
++    int entries, entry;
++    char *ret;
++    struct {
++        struct w_mnth  header;
++        struct w_mntent mount_table[10];
++    } work_area;
++
++    ret = NULL;
++    memset(&work_area, 0x00, sizeof(work_area));
++    do {
++        if ((entries = w_getmntent((char *) &work_area,
++                                         sizeof(work_area))) == -1)
++            perror("w_getmntent() error");
++        else for (entry=0; entry<entries; entry++)
++            if (devnum == work_area.mount_table[entry].mnt_dev)
++                ret = strdup(work_area.mount_table[entry].mnt_fsname);
++    } while ((entries > 0) && (ret == NULL));
++
++    return ret;
++}
++#endif
++
+ #include "areadlink.h"
+ #include "argmatch.h"
+ #include "c-ctype.h"
+@@ -100,7 +132,14 @@
  # elif HAVE_STRUCT_STATFS_F_NAMEMAX
  #  define SB_F_NAMEMAX(S) ((S)->f_namemax)
  # endif
@@ -18,7 +64,7 @@ index dd86450..4c9aaf5 100644
  # if HAVE_OS_H /* BeOS */
  /* BeOS has a statvfs function, but it does not return sensible values
     for f_files, f_ffree and f_favail, and lacks f_type, f_basetype and
-@@ -132,7 +139,11 @@ statfs (char const *filename, struct fs_info *buf)
+@@ -134,7 +173,11 @@ statfs (char const *filename, struct fs_info *buf)
  #  define STRUCT_STATXFS_F_FSID_IS_INTEGER true
  #  define STATFS_FRSIZE(S) ((S)->block_size)
  # else
@@ -30,7 +76,7 @@ index dd86450..4c9aaf5 100644
  #  define STRUCT_STATXFS_F_FSID_IS_INTEGER STRUCT_STATFS_F_FSID_IS_INTEGER
  #  if HAVE_STRUCT_STATFS_F_FRSIZE
  #   define STATFS_FRSIZE(S) ((S)->f_frsize)
-@@ -257,8 +268,12 @@ NODISCARD
+@@ -253,8 +296,12 @@ NODISCARD
  static char const *
  human_fstype (STRUCT_STATVFS const *statfsbuf)
  {
@@ -44,7 +90,7 @@ index dd86450..4c9aaf5 100644
  #else
    switch (statfsbuf->f_type)
      {
-@@ -873,6 +888,9 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -873,6 +920,9 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
        {
  #if STRUCT_STATXFS_F_FSID_IS_INTEGER
          uintmax_t fsid = statfsbuf->f_fsid;
@@ -54,7 +100,7 @@ index dd86450..4c9aaf5 100644
  #else
          typedef unsigned int fsid_word;
          static_assert (alignof (STRUCT_STATVFS) % alignof (fsid_word) == 0);
-@@ -890,8 +908,8 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -890,8 +940,8 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
              uintmax_t u = p[words - 1 - i];
              fsid |= u << (i * CHAR_BIT * sizeof *p);
            }
@@ -64,7 +110,7 @@ index dd86450..4c9aaf5 100644
        }
        break;
  
-@@ -909,30 +927,44 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -909,30 +959,44 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
        out_string (pformat, prefix_len, human_fstype (statfsbuf));
        break;
      case 'b':
@@ -109,7 +155,7 @@ index dd86450..4c9aaf5 100644
        break;
      default:
        fputc ('?', stdout);
-@@ -1267,12 +1299,14 @@ do_statfs (char const *filename, char const *format)
+@@ -1267,12 +1331,14 @@ do_statfs (char const *filename, char const *format)
        return false;
      }
  
@@ -124,3 +170,84 @@ index dd86450..4c9aaf5 100644
  
    bool fail = print_it (format, -1, filename, print_statfs, &statfsbuf);
    return ! fail;
+@@ -1648,6 +1714,30 @@ print_stat (char *pformat, size_t prefix_len, char mod, char m,
+     case 'C':
+       fail |= out_file_context (pformat, prefix_len, filename);
+       break;
++#ifdef __MVS__
++    case 'p':
++      out_uint (pformat, prefix_len, statbuf->st_tag.ft_ccsid);
++      break;
++    case 'q':
++      out_uint (pformat, prefix_len, statbuf->st_tag.ft_txtflag);
++      break;
++    case 'v':
++      out_uint (pformat, prefix_len, statbuf->st_tag.ft_deferred);
++      break;
++    case 'k':
++      out_uint (pformat, prefix_len, statbuf->st_tag.ft_rsvflags);
++      break;
++    case 'E':
++      {
++        char *fsname = get_filesys_name (statbuf->st_dev);
++        if (fsname)
++          {
++            out_string (pformat, prefix_len, fsname);
++            free (fsname);
++          }
++      }
++      break;
++#endif
+     default:
+       fputc ('?', stdout);
+       break;
+@@ -1698,18 +1788,14 @@ default_format (bool fs, bool terse, bool device)
+           temp = format;
+           if (device)
+             {
+-              /* TRANSLATORS: This string uses format specifiers from
+-                 'stat --help' without --file-system, and NOT from printf.  */
+-              format = xasprintf ("%s%s", format, _("\
+-" "Device: %Hd,%Ld\tInode: %-10i  Links: %-5h Device type: %Hr,%Lr\n\
++    format = xasprintf ("%s%s", format, _("\
++" "Device: %Hd,%Ld (%E)\tInode: %-10i  Links: %-5h Device type: %Hr,%Lr\n\
+ "));
+-            }
+-          else
+-            {
+-              /* TRANSLATORS: This string uses format specifiers from
+-                 'stat --help' without --file-system, and NOT from printf.  */
+-              format = xasprintf ("%s%s", format, _("\
+-" "Device: %Hd,%Ld\tInode: %-10i  Links: %h\n\
++  }
++else
++  {
++    format = xasprintf ("%s%s", format, _("\
++" "Device: %Hd,%Ld (%E)\tInode: %-10i  Links: %h\n\
+ "));
+             }
+           free (temp);
+@@ -1741,6 +1827,12 @@ default_format (bool fs, bool terse, bool device)
+                                 "Change: %z\n"
+                                 " Birth: %w\n"));
+           free (temp);
++
++#ifdef __MVS__
++          temp = format;
++          format = xasprintf ("%s CCSID: %%p\tText Flag: %%q\n", format);
++          free (temp);
++#endif
+         }
+     }
+   return format;
+@@ -1831,6 +1923,10 @@ The valid format sequences for files (without --file-system):\n\
+   %Y   time of last data modification, seconds since Epoch\n\
+   %z   time of last status change, human-readable\n\
+   %Z   time of last status change, seconds since Epoch\n\
++  %p   character set ID of the file tag\n\
++  %q   pure text flag of the file tag\n\
++  %v   defer until 1st write flag of the file tag\n\
++  %k   reserved flags of the file tag\n\
+ \n\
+ "), stdout);
+ 
