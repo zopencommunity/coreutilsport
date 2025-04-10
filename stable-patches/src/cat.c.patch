@@ -1,8 +1,173 @@
 diff --git a/src/cat.c b/src/cat.c
-index ac39a48..53bad79 100644
+index dcf537b..c762b2d 100644
 --- a/src/cat.c
 +++ b/src/cat.c
-@@ -532,6 +532,35 @@ copy_cat (void)
+@@ -40,6 +40,10 @@
+ #include "safe-read.h"
+ #include "xbinary-io.h"
+ 
++#ifdef __MVS__
++#include <_Ccsid.h>
++#endif
++
+ /* The official name of this program (e.g., no 'g' prefix).  */
+ #define PROGRAM_NAME "cat"
+ 
+@@ -112,6 +116,15 @@ Concatenate FILE(s) to standard output.\n\
+   -u                       (ignored)\n\
+   -v, --show-nonprinting   use ^ and M- notation, except for LFD and TAB\n\
+ "), stdout);
++#ifdef __MVS__
++      fputs (_("\
++  -B			   Disables the automatic conversion of tagged files.\n\
++  			   This option is ignored if the filecodeset or pgmcodeset options (-W option) are specified.\n\
++  -W option[,option]...    Specifies z/OS-specific options. The option keywords are case-sensitive. Possible options are:\n\
++  			   filecodeset=codeset\n\
++			   pgmcodeset=codeset\n\
++"), stdout);
++#endif
+       fputs (HELP_OPTION_DESCRIPTION, stdout);
+       fputs (VERSION_OPTION_DESCRIPTION, stdout);
+       printf (_("\
+@@ -126,6 +139,137 @@ Examples:\n\
+   exit (status);
+ }
+ 
++#ifdef __MVS__
++
++struct CcsidInfo {
++  char filecodeset[20];
++  int fileccsid;
++  char pgmcodeset[20];
++  int pgmccsid;
++  bool disable_autocvt;
++  bool enable_text_conv;
++  bool cmd_arg;
++};
++
++bool parse_codepage_options_from_cmdline(const char *input, struct CcsidInfo *info) {
++    if (!input) {
++        return false;
++    }
++
++    bool found_valid_key = false;
++    char temp[256];
++    strncpy(temp, input, sizeof(temp) - 1);
++    temp[sizeof(temp) - 1] = '\0';
++
++    char *pair = strtok(temp, ",");
++    while (pair) {
++        char *equal = strchr(pair, '=');
++        if (!equal) {
++            return false;
++        }
++
++        *equal = '\0';
++        const char *key = pair;
++        const char *value = equal + 1;
++
++        if (strcmp(key, "filecodeset") == 0) {
++            strcpy(info->filecodeset, value);
++            found_valid_key = true;
++        } else if (strcmp(key, "pgmcodeset") == 0) {
++            strcpy(info->pgmcodeset, value);
++            found_valid_key = true;
++        } else {
++            return false;
++        }
++
++        pair = strtok(NULL, ",");
++    }
++
++    return found_valid_key;
++}
++
++bool 
++parse_text_conv_env(const char *env, struct CcsidInfo *info) 
++{
++    bool found = false;
++    char *copy = strdup(env);
++    if (!copy) return false;
++
++    char *token = strtok(copy, ",");
++    while (token) {
++        if (strcasecmp(token, "DISABLE") == 0) {
++            info->disable_autocvt = true;
++            found = true;
++        } else if (strncasecmp(token, "FILECODESET(", 12) == 0) {
++            char *start = token + 12;
++            char *end = strchr(start, ')');
++            if (end) {
++                size_t length = end - start;
++                if (length < sizeof(info->filecodeset)) {
++                    strncpy(info->filecodeset, start, length);
++                    info->filecodeset[length] = '\0';
++                    found = true;
++                }
++            }
++        } else if (strncasecmp(token, "PGMCODESET(", 11) == 0) {
++            char *start = token + 11;
++            char *end = strchr(start, ')');
++            if (end) {
++                size_t length = end - start;
++                if (length < sizeof(info->pgmcodeset)) {
++                    strncpy(info->pgmcodeset, start, length);
++                    info->pgmcodeset[length] = '\0';
++                    found = true;
++                }
++            }
++        }
++
++        token = strtok(NULL, ",");
++    }
++
++    free(copy);
++    return found;
++}
++
++bool 
++get_codepage_options(struct CcsidInfo *info) 
++{
++    // Check if both codesets are empty
++    if (info->filecodeset[0] == '\0' && info->pgmcodeset[0] == '\0') {
++        return false;
++    }
++
++    // Set default codesets if they are empty
++    if (info->filecodeset[0] == '\0') {
++        strcpy(info->filecodeset, "ISO8859-1");
++    }
++
++    if (info->pgmcodeset[0] == '\0') {
++        strcpy(info->pgmcodeset, "ISO8859-1");
++    }
++
++    // Validate the program codeset
++    if (strcmp(info->pgmcodeset, "ISO8859-1") != 0 && strcmp(info->pgmcodeset, "819") != 0) {
++        error(EXIT_FAILURE, EINVAL, _("Only pgmcodeset ISO8859-1 is supported"));	
++    }
++
++    // Convert codesets to CCSIDs
++    info->fileccsid = __toCcsid(info->filecodeset);
++    if (!info->fileccsid) {
++        error(EXIT_FAILURE, errno, _("ccsid conversion failed"));
++    }
++
++    info->pgmccsid = __toCcsid(info->pgmcodeset);
++    if (!info->pgmccsid) {
++        error(EXIT_FAILURE, errno, _("ccsid conversion failed"));
++    }
++
++    return true;
++}
++
++
++#endif
++
+ /* Compute the next line number.  */
+ 
+ static void
+@@ -531,6 +675,35 @@ copy_cat (void)
        }
  }
  
@@ -38,7 +203,18 @@ index ac39a48..53bad79 100644
  
  int
  main (int argc, char **argv)
-@@ -564,6 +593,19 @@ main (int argc, char **argv)
+@@ -547,6 +720,10 @@ main (int argc, char **argv)
+   bool show_ends = false;
+   bool show_nonprinting = false;
+   bool show_tabs = false;
++#ifdef __MVS__
++  struct CcsidInfo ccsid_info;
++  memset(&ccsid_info, 0, sizeof(struct CcsidInfo));
++#endif
+   int file_open_mode = O_RDONLY;
+ 
+   static struct option const long_options[] =
+@@ -563,6 +740,19 @@ main (int argc, char **argv)
      {nullptr, 0, nullptr, 0}
    };
  
@@ -58,3 +234,81 @@ index ac39a48..53bad79 100644
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");
+@@ -578,8 +768,13 @@ main (int argc, char **argv)
+   /* Parse command line options.  */
+ 
+   int c;
++#ifdef __MVS__
++  while ((c = getopt_long (argc, argv, "benstuvAETBW:", long_options, nullptr))
++         != -1)
++#elif
+   while ((c = getopt_long (argc, argv, "benstuvAET", long_options, nullptr))
+          != -1)
++#endif
+     {
+       switch (c)
+         {
+@@ -628,6 +823,22 @@ main (int argc, char **argv)
+           show_tabs = true;
+           break;
+ 
++#ifdef __MVS__
++	case 'B':
++	  ccsid_info.cmd_arg = true;
++	  ccsid_info.disable_autocvt = true;
++	  break;
++
++	case 'W':
++	  ccsid_info.cmd_arg = true;
++	  ccsid_info.disable_autocvt = false;
++	  if (!parse_codepage_options_from_cmdline(optarg, &ccsid_info)) {
++    		usage(EXIT_FAILURE);
++	  }
++	  ccsid_info.enable_text_conv = get_codepage_options(&ccsid_info);
++	  break;
++#endif
++
+         case_GETOPT_HELP_CHAR;
+ 
+         case_GETOPT_VERSION_CHAR (PROGRAM_NAME, AUTHORS);
+@@ -637,6 +848,20 @@ main (int argc, char **argv)
+         }
+     }
+ 
++#ifdef __MVS__
++if (!ccsid_info.cmd_arg) {
++    const char *env = getenv("_TEXT_CONV");
++    if (env) {
++        if (!parse_text_conv_env(env, &ccsid_info)) {
++            error(EXIT_FAILURE, EINVAL, _("Invalid _TEXT_CONV values"));
++        } else {
++            ccsid_info.enable_text_conv = get_codepage_options(&ccsid_info);
++        }
++    }
++}
++
++#endif
++
+   /* Get device, i-node number, and optimal blocksize of output.  */
+ 
+   if (fstat (STDOUT_FILENO, &stat_buf) < 0)
+@@ -690,6 +915,19 @@ main (int argc, char **argv)
+             }
+         }
+ 
++#ifdef __MVS__
++	if(ccsid_info.enable_text_conv) {
++	   struct f_cnvrt cvt;
++	   cvt.cvtcmd = SETCVTALL;
++    	   cvt.pccsid = ccsid_info.pgmccsid;
++           cvt.fccsid = ccsid_info.fileccsid;
++	   fcntl(input_desc, F_CONTROL_CVT, &cvt);
++	}
++        else if(ccsid_info.disable_autocvt) {
++	   __disableautocvt(input_desc);
++	}
++#endif
++
+       if (fstat (input_desc, &stat_buf) < 0)
+         {
+           error (0, errno, "%s", quotef (infile));
