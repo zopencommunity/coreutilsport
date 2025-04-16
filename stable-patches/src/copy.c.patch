@@ -1,7 +1,7 @@
-diff --git a/src/copy.c b/src/copy.c
-index 7ffb998..553f425 100644
---- a/src/copy.c
-+++ b/src/copy.c
+diff --git i/src/copy.c w/src/copy.c
+index 7ffb998..fcb9423 100644
+--- i/src/copy.c
++++ w/src/copy.c
 @@ -106,6 +106,10 @@
  # define CAN_HARDLINK_SYMLINKS 0
  #endif
@@ -13,22 +13,27 @@ index 7ffb998..553f425 100644
  struct dir_list
  {
    struct dir_list *parent;
-@@ -1254,7 +1258,7 @@ copy_reg (char const *src_name, char const *dst_name,
+@@ -1254,7 +1258,11 @@ copy_reg (char const *src_name, char const *dst_name,
        return false;
      }
  
 -  if (fstat (source_desc, &src_open_sb) != 0)
++#ifdef __MVS__
++   // Avoid auto-conversion when reading the file
++   __disableautocvt(source_desc);
++#endif
 +  if (stat (src_name, &src_open_sb) != 0)
      {
        error (0, errno, _("cannot fstat %s"), quoteaf (src_name));
        return_val = false;
-@@ -1502,6 +1506,11 @@ copy_reg (char const *src_name, char const *dst_name,
+@@ -1502,6 +1510,12 @@ copy_reg (char const *src_name, char const *dst_name,
        goto close_src_desc;
      }
  
 +#ifdef __MVS__
 +/* Copy MVS file tags */
 +  __setfdccsid(dest_desc,  (src_sb->st_tag.ft_txtflag << 16) | src_sb->st_tag.ft_ccsid);
++  __disableautocvt(dest_desc);
 +#endif
 +
    /* --attributes-only overrides --reflink.  */
