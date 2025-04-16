@@ -1,8 +1,19 @@
 diff --git a/src/ls.c b/src/ls.c
-index 3215360..d7dd1c8 100644
+index 3215360..c839bf9 100644
 --- a/src/ls.c
 +++ b/src/ls.c
-@@ -113,6 +113,38 @@
+@@ -61,6 +61,10 @@
+ # include <langinfo.h>
+ #endif
+ 
++#ifdef __MVS__
++#include <_Ccsid.h>
++#endif
++
+ /* Use SA_NOCLDSTOP as a proxy for whether the sigaction machinery is
+    present.  */
+ #ifndef SA_NOCLDSTOP
+@@ -113,6 +117,17 @@
  #include "canonicalize.h"
  #include "statx.h"
  
@@ -14,67 +25,53 @@ index 3215360..d7dd1c8 100644
 +#include <sys/wait.h>
 +
 +extern char** environ;
-+static bool
-+do_mvs_ls (int argc, char **argv)
-+{
-+
-+  pid_t pid = fork();
-+  if (pid == 0) {
-+    argv[0] = MVS_LS;
-+    execvpe(MVS_LS, argv, environ);
-+  } else if (pid > 0) {
-+    int wstatus;
-+    pid_t waitchild = waitpid(pid, &wstatus, WUNTRACED | WCONTINUED);
-+    if (waitchild == -1) {
-+      perror("waitpid");
-+      return false;
-+    }
-+    if (WIFEXITED(wstatus)) {
-+      return WEXITSTATUS(wstatus) == 0 ? true : false;
-+    } else if (WIFSIGNALED(wstatus)) {
-+      fprintf(stderr, "killed by signal %d\n", WTERMSIG(wstatus));
-+    }
-+  }
-+}
++bool tagflag, extflag;
 +#endif
 +
  /* Include <sys/capability.h> last to avoid a clash of <sys/types.h>
     include guards with some premature versions of libcap.
     For more details, see <https://bugzilla.redhat.com/483548>.  */
-@@ -1965,7 +1997,7 @@ decode_switches (int argc, char **argv)
+@@ -1697,6 +1712,10 @@ main (int argc, char **argv)
+   struct pending *thispend;
+   int n_files;
+ 
++  #ifdef __MVS__
++  tagflag = extflag = false;
++  #endif
++
+   initialize_main (&argc, &argv);
+   set_program_name (argv[0]);
+   setlocale (LC_ALL, "");
+@@ -1965,7 +1984,7 @@ decode_switches (int argc, char **argv)
      {
        int oi = -1;
        int c = getopt_long (argc, argv,
 -                           "abcdfghiklmnopqrstuvw:xABCDFGHI:LNQRST:UXZ1",
-+                           "abcdEfghiklmnopqrstuvw:xABCDFGHI:LNQRST:UXZ1",
++                           "abcdfghiklmnopqrstuvw:xABCDEFGHI:LNQRSTUXZ1",
                             long_options, &oi);
        if (c == -1)
          break;
-@@ -1989,6 +2021,15 @@ decode_switches (int argc, char **argv)
-           immediate_dirs = true;
+@@ -2094,6 +2113,14 @@ decode_switches (int argc, char **argv)
+           dired = true;
            break;
  
-+#ifdef __MVS__
 +        case 'E':
++#ifdef __MVS__
 +        {
-+            int ok = do_mvs_ls(argc, argv);
-+            exit (ok ? EXIT_SUCCESS : EXIT_FAILURE);
++	  extflag = true;
 +        }
-+        break;
++          break;
 +#endif
 +
-         case 'f':
-           ignore_mode = IGNORE_MINIMAL; /* enable -a */
-           sort_opt = sort_none;         /* enable -U */
-@@ -2146,10 +2187,17 @@ decode_switches (int argc, char **argv)
+         case 'F':
+           {
+             int i;
+@@ -2146,10 +2173,14 @@ decode_switches (int argc, char **argv)
            break;
  
          case 'T':
 +#ifdef __MVS__
-+        {
-+          int ok = do_mvs_ls(argc, argv);
-+          exit (ok ? EXIT_SUCCESS : EXIT_FAILURE);
-+        }
++	  tagflag = true;
 +          break;
 +#else
            tabsize_opt = xnumtoumax (optarg, 0, 0, MIN (PTRDIFF_MAX, SIZE_MAX),
@@ -85,3 +82,118 @@ index 3215360..d7dd1c8 100644
          case 'U':
            sort_opt = sort_none;
            break;
+@@ -4279,6 +4310,62 @@ format_inode (char buf[INT_BUFSIZE_BOUND (uintmax_t)],
+           ? umaxtostr (f->stat.st_ino, buf)
+           : (char *) "?");
+ }
++#ifdef __MVS__
++char *extended_attributes(const struct fileinfo *f)
++{
++   static char genvalue[5] = "    ";
++   struct stat *sb = NULL;
++   sb = &f->stat;
++   if ((f->filetype != directory) && (f->filetype != symbolic_link)) {
++      strcpy(genvalue, "--s-");
++      if (sb->st_genvalue & __ST_APF_AUTH) genvalue[0] = 'a';
++      if (sb->st_genvalue & __ST_PROG_CTL) genvalue[1] = 'p';
++      if (sb->st_genvalue & __ST_NO_SHAREAS) genvalue[2] = '-';
++      if (sb->st_genvalue & __ST_SHARE_LIB) genvalue[3] = 'l';
++   }
++   else {
++      strcpy(genvalue, "    ");
++   }
++   return genvalue;
++}
++
++char *filetag(const struct fileinfo *f)
++{
++   char filetag[_CSNAME_LEN_MAX] = "";
++   int  csname_size = _CSNAME_LEN_MAX;
++   struct stat *sb = NULL;
++   char txtflag[6] = "     ";
++   char filetype[2] = " ";
++   char buf[_CSNAME_LEN_MAX + sizeof(txtflag) + sizeof(filetype) + 2];
++   sb = &f->stat;
++   if ((f->filetype != directory) && (f->filetype != symbolic_link)) {
++      __toCSName(sb->st_tag.ft_ccsid, filetag);
++      if (sb->st_tag.ft_ccsid == FT_BINARY) {
++         strcpy(filetag, "binary");
++         strcpy(filetype, "b");
++         strcpy(txtflag, "T=off");
++      }
++      else
++      if (sb->st_tag.ft_ccsid == FT_UNTAGGED) {
++         strcpy(filetag, "untagged");
++         strcpy(filetype, "-");
++         strcpy(txtflag, "T=off");
++      }
++      else
++      if (sb->st_tag.ft_txtflag) {
++         strcpy(txtflag, "T=on ");
++         strcpy(filetype, "t");
++      }
++      else {
++         strcpy(txtflag, "T=off");
++         strcpy(filetype, "m");
++      }
++      csname_size = _CSNAME_LEN_MAX - strlen(filetag);
++   }
++   sprintf(buf, "%s %s%*.*s %s", filetype, filetag, csname_size, csname_size, "", txtflag);
++   return buf;
++}
++#endif
+ 
+ /* Print information about F in long format.  */
+ static void
+@@ -4286,7 +4373,7 @@ print_long_format (const struct fileinfo *f)
+ {
+   char modebuf[12];
+   char buf
+-    [LONGEST_HUMAN_READABLE + 1		/* inode */
++    [LONGEST_HUMAN_READABLE + 1        /* inode */
+      + LONGEST_HUMAN_READABLE + 1	/* size in blocks */
+      + sizeof (modebuf) - 1 + 1		/* mode string */
+      + INT_BUFSIZE_BOUND (uintmax_t)	/* st_nlink */
+@@ -4299,7 +4386,6 @@ print_long_format (const struct fileinfo *f)
+   struct timespec when_timespec;
+   struct tm when_local;
+   bool btime_ok = true;
+-
+   /* Compute the mode string, except remove the trailing space if no
+      file in this directory has an ACL or security context.  */
+   if (f->stat_ok)
+@@ -4340,7 +4426,6 @@ print_long_format (const struct fileinfo *f)
+     }
+ 
+   p = buf;
+-
+   if (print_inode)
+     {
+       char hbuf[INT_BUFSIZE_BOUND (uintmax_t)];
+@@ -4364,11 +4449,25 @@ print_long_format (const struct fileinfo *f)
+       p[-1] = ' ';
+     }
+ 
++#ifdef __MVS__
++ if(tagflag)
++ {
++      p += sprintf(p, " %s ", filetag(f));
++ }
++#endif
++
+   /* The last byte of the mode string is the POSIX
+      "optional alternate access method flag".  */
+   {
+     char hbuf[INT_BUFSIZE_BOUND (uintmax_t)];
+-    p += sprintf (p, "%s %*s ", modebuf, nlink_width,
++    p += sprintf (p, "%s ", modebuf);
++#ifdef __MVS__
++ if(extflag)
++ {
++      p += sprintf(p, " %s ", extended_attributes(f));
++ }
++#endif
++    p += sprintf (p, "%*s ", nlink_width,
+                   ! f->stat_ok ? "?" : umaxtostr (f->stat.st_nlink, hbuf));
+   }
+ 
