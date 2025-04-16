@@ -1,5 +1,5 @@
 diff --git a/src/ls.c b/src/ls.c
-index 3215360..c839bf9 100644
+index 3215360..a2a2228 100644
 --- a/src/ls.c
 +++ b/src/ls.c
 @@ -61,6 +61,10 @@
@@ -177,7 +177,7 @@ index 3215360..c839bf9 100644
 +#ifdef __MVS__
 + if(tagflag)
 + {
-+      p += sprintf(p, " %s ", filetag(f));
++      p += sprintf(p, "%s ", filetag(f));
 + }
 +#endif
 +
@@ -190,10 +190,10 @@ index 3215360..c839bf9 100644
 +#ifdef __MVS__
 + if(extflag)
 + {
-+      p += sprintf(p, " %s ", extended_attributes(f));
++      p += sprintf(p, " %s", extended_attributes(f));
 + }
 +#endif
-+    p += sprintf (p, "%*s ", nlink_width,
++    p += sprintf (p, " %*s ", nlink_width,
                    ! f->stat_ok ? "?" : umaxtostr (f->stat.st_nlink, hbuf));
    }
  
