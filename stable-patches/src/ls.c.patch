@@ -1,5 +1,5 @@
 diff --git a/src/ls.c b/src/ls.c
-index 3215360..a2a2228 100644
+index 3215360..3e176e1 100644
 --- a/src/ls.c
 +++ b/src/ls.c
 @@ -61,6 +61,10 @@
@@ -51,13 +51,14 @@ index 3215360..a2a2228 100644
                             long_options, &oi);
        if (c == -1)
          break;
-@@ -2094,6 +2113,14 @@ decode_switches (int argc, char **argv)
+@@ -2094,6 +2113,15 @@ decode_switches (int argc, char **argv)
            dired = true;
            break;
  
 +        case 'E':
 +#ifdef __MVS__
 +        {
++          format_opt = long_format;
 +	  extflag = true;
 +        }
 +          break;
@@ -66,11 +67,12 @@ index 3215360..a2a2228 100644
          case 'F':
            {
              int i;
-@@ -2146,10 +2173,14 @@ decode_switches (int argc, char **argv)
+@@ -2146,10 +2174,15 @@ decode_switches (int argc, char **argv)
            break;
  
          case 'T':
 +#ifdef __MVS__
++          format_opt = long_format;
 +	  tagflag = true;
 +          break;
 +#else
@@ -82,7 +84,7 @@ index 3215360..a2a2228 100644
          case 'U':
            sort_opt = sort_none;
            break;
-@@ -4279,6 +4310,62 @@ format_inode (char buf[INT_BUFSIZE_BOUND (uintmax_t)],
+@@ -4279,6 +4312,62 @@ format_inode (char buf[INT_BUFSIZE_BOUND (uintmax_t)],
            ? umaxtostr (f->stat.st_ino, buf)
            : (char *) "?");
  }
@@ -145,7 +147,7 @@ index 3215360..a2a2228 100644
  
  /* Print information about F in long format.  */
  static void
-@@ -4286,7 +4373,7 @@ print_long_format (const struct fileinfo *f)
+@@ -4286,7 +4375,7 @@ print_long_format (const struct fileinfo *f)
  {
    char modebuf[12];
    char buf
@@ -154,7 +156,7 @@ index 3215360..a2a2228 100644
       + LONGEST_HUMAN_READABLE + 1	/* size in blocks */
       + sizeof (modebuf) - 1 + 1		/* mode string */
       + INT_BUFSIZE_BOUND (uintmax_t)	/* st_nlink */
-@@ -4299,7 +4386,6 @@ print_long_format (const struct fileinfo *f)
+@@ -4299,7 +4388,6 @@ print_long_format (const struct fileinfo *f)
    struct timespec when_timespec;
    struct tm when_local;
    bool btime_ok = true;
@@ -162,7 +164,7 @@ index 3215360..a2a2228 100644
    /* Compute the mode string, except remove the trailing space if no
       file in this directory has an ACL or security context.  */
    if (f->stat_ok)
-@@ -4340,7 +4426,6 @@ print_long_format (const struct fileinfo *f)
+@@ -4340,7 +4428,6 @@ print_long_format (const struct fileinfo *f)
      }
  
    p = buf;
@@ -170,7 +172,7 @@ index 3215360..a2a2228 100644
    if (print_inode)
      {
        char hbuf[INT_BUFSIZE_BOUND (uintmax_t)];
-@@ -4364,11 +4449,25 @@ print_long_format (const struct fileinfo *f)
+@@ -4364,11 +4451,25 @@ print_long_format (const struct fileinfo *f)
        p[-1] = ' ';
      }
  
