@@ -50,7 +50,7 @@ zopen_pre_patch()
 
 zopen_post_install() 
 {
-  export ZOPEN_COREUTILS="b2sum base32 base64 basename blake2 cat chcon chgrp chmod chown chroot chksum comm cp csplit cut date dd dir dircolors dirname df du echo env expand expr factor false fmt groups head id install join ls md5sum mkfifo mktemp mknod nproc numfmt od pinky ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf sync sleep touch tr tty vdir wc yes seq tac timeout truncate users"
+  export ZOPEN_COREUTILS="b2sum base32 base64 basename blake2 cat chcon chgrp chmod chown chroot chksum comm cp csplit cut date dd dir dircolors dirname df du echo env expand expr factor false fmt groups head id install join ls md5sum mkfifo mktemp mknod nproc numfmt od pinky printenv ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf sync sleep touch tr tty vdir wc yes seq tac timeout truncate users"
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name ${cmd}"
@@ -58,9 +58,6 @@ zopen_post_install()
 
   # remove unsupported binaries: run as a child process so the directory change does not 'survive'
   (cd "$1/bin" && ${findstring} -print | xargs rm)
-
-  mkdir $ZOPEN_INSTALL_DIR/altbin
-  mkdir -p $ZOPEN_INSTALL_DIR/share/altman/man1
 
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
@@ -70,30 +67,6 @@ zopen_post_install()
   # remove unsupported man pages: run as a child process so the directory change does not 'survive'
   (cd "$1/share/man/man1" && ${findstring} -print | xargs rm)
 
-  # Add g prefix to all collding tools and manpages in bin/ and create symlinks
-  find $1/bin -type f -exec sh -c '
-  for file; do
-    dir=$(dirname "$file")
-    base=$(basename "$file")
-    if [ -f "/bin/$base" ]; then
-      mv "$file" "$dir/g$base"
-      ln -s "../bin/g$base" "$ZOPEN_INSTALL_DIR/altbin/$base"
-
-      mv "$ZOPEN_INSTALL_DIR/share/man/man1/$base.1"  "$ZOPEN_INSTALL_DIR/share/man/man1/g$base.1"
-      ln -s "../../man/man1/g$base.1" "$ZOPEN_INSTALL_DIR/share/altman/man1/$base.1"
-    fi
-  done
-' sh {} +
-
-}
-
-zopen_install_caveats()
-{
-cat <<ZZ
-GNU coreutils have been installed with the prefix "g" under bin/ to avoid collision with z/OS /bin/ tools.
-The conflicting manpages have been installed under the share/altman dir. You can use zotman to view them.
-If you prefer to use the coreutils as is, source zopen-config with the option --override-zos-tools.
-ZZ
 }
 
 zopen_get_version()
@@ -101,3 +74,4 @@ zopen_get_version()
   # pick one of the tools
   ./src/cp --version | head -1 | awk '{print $4; }'
 }
+
