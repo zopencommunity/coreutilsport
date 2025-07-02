@@ -50,7 +50,7 @@ zopen_pre_patch()
 
 zopen_post_install() 
 {
-  export ZOPEN_COREUTILS="b2sum base32 base64 basename blake2 cat chcon chgrp chmod chown chroot chksum comm cp csplit cut date dd dir dircolors dirname df du echo env expand expr factor false fmt groups head id install join ls md5sum mkfifo mktemp mknod nproc numfmt od pinky printenv ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf sync sleep touch tr tty vdir wc yes seq tac timeout truncate users"
+  export ZOPEN_COREUTILS="b2sum base32 base64 basename blake2 cat chcon chgrp chmod chown chroot chksum comm cp csplit cut date dd dir dircolors dirname df du echo env expand expr factor false fmt groups head id install join ls md5sum mkfifo mktemp mknod nproc numfmt od pinky printf printenv ptx readlink realpath sha1sum sha224sum sha256sum sha384sum sha512sum shasum stdbuf shred shuf sort stat stdbuf sync sleep touch tr tty vdir wc yes seq tac timeout truncate users"
   findstring="find . -type f"
   for cmd in $ZOPEN_COREUTILS; do
     findstring="${findstring} ! -name ${cmd}"
