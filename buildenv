@@ -10,6 +10,7 @@ export ZOPEN_EXTRA_CONFIGURE_OPTS="--disable-dependency-tracking"
 export ZOPEN_CHECK_TIMEOUT=30000 # 8 hours and a bit
 export PERL="/bin/env perl"
 export ZOPEN_COMP=CLANG
+export ZOSLIB_ERROR_COMPAT=""
 
 zopen_check_results()
 {
