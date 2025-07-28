@@ -1,0 +1,22 @@
+diff --git i/lib/localcharset.c w/lib/localcharset.c
+index 32f6f78..210e3e7 100644
+--- i/lib/localcharset.c
++++ w/lib/localcharset.c
+@@ -1063,7 +1063,7 @@ locale_charset (void)
+         /* Did not find it in the table.  */
+         /* On Mac OS X, all modern locales use the UTF-8 encoding.
+            BeOS and Haiku have a single locale, and it has UTF-8 encoding.  */
+-# if (defined __APPLE__ && defined __MACH__) || defined __BEOS__ || defined __HAIKU__
++# if (defined __APPLE__ && defined __MACH__) || defined __BEOS__ || defined __HAIKU__ || defined(__MVS__)
+         codeset = "UTF-8";
+ # else
+         /* Don't return an empty string.  GNU libc and GNU libiconv interpret
+@@ -1136,7 +1136,7 @@ locale_charset (void)
+         /* Did not find it in the table.  */
+         /* On Mac OS X, all modern locales use the UTF-8 encoding.
+            BeOS and Haiku have a single locale, and it has UTF-8 encoding.  */
+-# if (defined __APPLE__ && defined __MACH__) || defined __BEOS__ || defined __HAIKU__
++# if (defined __APPLE__ && defined __MACH__) || defined __BEOS__ || defined __HAIKU__ || defined(__MVS__)
+         codeset = "UTF-8";
+ # else
+         /* The canonical name cannot be determined.  */
