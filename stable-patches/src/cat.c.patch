@@ -1,9 +1,9 @@
 diff --git a/src/cat.c b/src/cat.c
-index dcf537b..c762b2d 100644
+index 2a3c1d1..0aea98a 100644
 --- a/src/cat.c
 +++ b/src/cat.c
-@@ -40,6 +40,10 @@
- #include "safe-read.h"
+@@ -39,6 +39,10 @@
+ #include "full-write.h"
  #include "xbinary-io.h"
  
 +#ifdef __MVS__
@@ -13,7 +13,7 @@ index dcf537b..c762b2d 100644
  /* The official name of this program (e.g., no 'g' prefix).  */
  #define PROGRAM_NAME "cat"
  
-@@ -112,6 +116,15 @@ Concatenate FILE(s) to standard output.\n\
+@@ -111,6 +115,15 @@ Concatenate FILE(s) to standard output.\n\
    -u                       (ignored)\n\
    -v, --show-nonprinting   use ^ and M- notation, except for LFD and TAB\n\
  "), stdout);
@@ -29,7 +29,7 @@ index dcf537b..c762b2d 100644
        fputs (HELP_OPTION_DESCRIPTION, stdout);
        fputs (VERSION_OPTION_DESCRIPTION, stdout);
        printf (_("\
-@@ -126,6 +139,137 @@ Examples:\n\
+@@ -125,6 +138,137 @@ Examples:\n\
    exit (status);
  }
  
@@ -167,7 +167,7 @@ index dcf537b..c762b2d 100644
  /* Compute the next line number.  */
  
  static void
-@@ -531,6 +675,35 @@ copy_cat (void)
+@@ -530,6 +674,35 @@ copy_cat (void)
        }
  }
  
@@ -203,7 +203,7 @@ index dcf537b..c762b2d 100644
  
  int
  main (int argc, char **argv)
-@@ -547,6 +720,10 @@ main (int argc, char **argv)
+@@ -546,6 +719,10 @@ main (int argc, char **argv)
    bool show_ends = false;
    bool show_nonprinting = false;
    bool show_tabs = false;
@@ -214,7 +214,7 @@ index dcf537b..c762b2d 100644
    int file_open_mode = O_RDONLY;
  
    static struct option const long_options[] =
-@@ -563,6 +740,19 @@ main (int argc, char **argv)
+@@ -562,6 +739,19 @@ main (int argc, char **argv)
      {nullptr, 0, nullptr, 0}
    };
  
@@ -234,7 +234,7 @@ index dcf537b..c762b2d 100644
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");
-@@ -578,8 +768,13 @@ main (int argc, char **argv)
+@@ -577,8 +767,13 @@ main (int argc, char **argv)
    /* Parse command line options.  */
  
    int c;
@@ -248,7 +248,7 @@ index dcf537b..c762b2d 100644
      {
        switch (c)
          {
-@@ -628,6 +823,22 @@ main (int argc, char **argv)
+@@ -627,6 +822,22 @@ main (int argc, char **argv)
            show_tabs = true;
            break;
  
@@ -271,7 +271,7 @@ index dcf537b..c762b2d 100644
          case_GETOPT_HELP_CHAR;
  
          case_GETOPT_VERSION_CHAR (PROGRAM_NAME, AUTHORS);
-@@ -637,6 +848,20 @@ main (int argc, char **argv)
+@@ -636,6 +847,20 @@ main (int argc, char **argv)
          }
      }
  
@@ -292,7 +292,7 @@ index dcf537b..c762b2d 100644
    /* Get device, i-node number, and optimal blocksize of output.  */
  
    if (fstat (STDOUT_FILENO, &stat_buf) < 0)
-@@ -690,6 +915,19 @@ main (int argc, char **argv)
+@@ -698,6 +923,19 @@ main (int argc, char **argv)
              }
          }
  

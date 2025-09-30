@@ -1,8 +1,8 @@
 diff --git a/lib/nproc.c b/lib/nproc.c
-index e3de187..b2ab757 100644
+index e899ff1..844c8cb 100644
 --- a/lib/nproc.c
 +++ b/lib/nproc.c
-@@ -336,6 +336,10 @@ num_processors_ignoring_omp (enum nproc_query query)
+@@ -366,6 +366,10 @@ num_processors_available (enum nproc_query query)
    }
  #endif
  
@@ -10,6 +10,6 @@ index e3de187..b2ab757 100644
 +  return __get_num_online_cpus();
 +#endif
 +
-   return 1;
+   return NPROC_MINIMUM;
  }
  
