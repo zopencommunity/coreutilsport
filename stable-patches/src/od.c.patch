@@ -1,8 +1,8 @@
 diff --git a/src/od.c b/src/od.c
-index d23df2c..986b6a5 100644
+index f893729..76db57c 100644
 --- a/src/od.c
 +++ b/src/od.c
-@@ -981,6 +981,11 @@ open_next_file (void)
+@@ -1006,6 +1006,11 @@ open_next_file (void)
      }
    while (in_stream == nullptr);
  
@@ -11,6 +11,6 @@ index d23df2c..986b6a5 100644
 +  __disableautocvt(fileno(in_stream));
 +#endif
 +
-   if (limit_bytes_to_format && !flag_dump_strings)
+   if (0 <= end_offset && !flag_dump_strings)
      setvbuf (in_stream, nullptr, _IONBF, 0);
  

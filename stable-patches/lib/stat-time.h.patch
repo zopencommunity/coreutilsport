@@ -1,13 +1,13 @@
-diff --git i/lib/stat-time.h w/lib/stat-time.h
-index 6981393..7263dff 100644
---- i/lib/stat-time.h
-+++ w/lib/stat-time.h
-@@ -166,6 +166,8 @@ get_stat_birthtime (_GL_UNUSED struct stat const *st)
- #elif defined HAVE_STRUCT_STAT_ST_BIRTHTIMENSEC
-   t = (struct timespec) { .tv_sec = st->st_birthtime,
-                           .tv_nsec = st->st_birthtimensec };
+diff --git a/lib/stat-time.h b/lib/stat-time.h
+index 38315b9..30e9e0b 100644
+--- a/lib/stat-time.h
++++ b/lib/stat-time.h
+@@ -185,6 +185,8 @@ get_stat_birthtime (_GL_UNUSED struct stat const *st)
+ #if (defined HAVE_STRUCT_STAT_ST_BIRTHTIMESPEC_TV_NSEC \
+      || defined HAVE_STRUCT_STAT_ST_BIRTHTIM_TV_NSEC)
+   t = STAT_TIMESPEC (st, st_birthtim);
 +#elif defined __MVS__
 +  t = (struct timespec) { .tv_sec = st->st_createtime };
+ #elif defined HAVE_STRUCT_STAT_ST_BIRTHTIMENSEC
+   t = _gl_make_timespec (st->st_birthtime, st->st_birthtimensec);
  #elif defined _WIN32 && ! defined __CYGWIN__
-   /* Native Windows platforms (but not Cygwin) put the "file creation
-      time" in st_ctime (!).  See
