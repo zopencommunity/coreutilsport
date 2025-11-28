@@ -1,8 +1,8 @@
-diff --git i/src/copy.c w/src/copy.c
-index 7ffb998..fcb9423 100644
---- i/src/copy.c
-+++ w/src/copy.c
-@@ -106,6 +106,10 @@
+diff --git a/src/copy.c b/src/copy.c
+index 4af66c8..90a8c1b 100644
+--- a/src/copy.c
++++ b/src/copy.c
+@@ -102,6 +102,10 @@
  # define CAN_HARDLINK_SYMLINKS 0
  #endif
  
@@ -13,7 +13,16 @@ index 7ffb998..fcb9423 100644
  struct dir_list
  {
    struct dir_list *parent;
-@@ -1254,7 +1258,11 @@ copy_reg (char const *src_name, char const *dst_name,
+@@ -745,7 +749,7 @@ copy_reg (char const *src_name, char const *dst_name,
+   struct stat src_open_sb;
+   bool return_val = true;
+   bool data_copy_required = x->data_copy_required;
+-  bool preserve_xattr = USE_XATTR & x->preserve_xattr;
++  bool preserve_xattr = (USE_XATTR || __MVS__) & x->preserve_xattr;
+ 
+   copy_debug.offload = COPY_DEBUG_UNKNOWN;
+   copy_debug.reflink = x->reflink_mode ? COPY_DEBUG_UNKNOWN : COPY_DEBUG_NO;
+@@ -760,7 +764,11 @@ copy_reg (char const *src_name, char const *dst_name,
        return false;
      }
  
@@ -26,7 +35,7 @@ index 7ffb998..fcb9423 100644
      {
        error (0, errno, _("cannot fstat %s"), quoteaf (src_name));
        return_val = false;
-@@ -1502,6 +1510,12 @@ copy_reg (char const *src_name, char const *dst_name,
+@@ -1007,6 +1015,12 @@ copy_reg (char const *src_name, char const *dst_name,
        goto close_src_desc;
      }
  
@@ -39,3 +48,53 @@ index 7ffb998..fcb9423 100644
    /* --attributes-only overrides --reflink.  */
    if (data_copy_required && x->reflink_mode)
      {
+@@ -1090,9 +1104,49 @@ copy_reg (char const *src_name, char const *dst_name,
+ 
+   if (preserve_xattr)
+     {
++#ifdef __MVS__
++      unsigned int zos_genvalue = src_sb->st_genvalue;
++      if( zos_genvalue)
++      {
++        attrib_t pbits;
++        memset (&pbits, 0, sizeof (pbits));
++
++        if (zos_genvalue & __ST_APF_AUTH)
++          {
++            pbits.att_apfauthmask = 1;
++            pbits.att_apfauth = 1;
++            pbits.att_setgen = 1;
++          }
++        if (zos_genvalue & __ST_PROG_CTL)
++          {
++            pbits.att_progctlmask = 1;
++            pbits.att_progctl = 1;
++            pbits.att_setgen = 1;
++          }
++        if (zos_genvalue & __ST_NO_SHAREAS)
++          {
++            pbits.att_noshareasmask = 1;
++            pbits.att_noshareas = 1;
++            pbits.att_setgen = 1;
++          }
++        if (zos_genvalue & __ST_SHARE_LIB)
++          {
++            pbits.att_sharelibmask = 1;
++            pbits.att_sharelib = 1;
++            pbits.att_setgen = 1;
++          }
++        if (__chattr (dst_name, &pbits, sizeof (pbits)) != 0)
++          {
++            error (0, errno, _("cannot set genvalue attributes for %s"),
++                  quoteaf (dst_name));
++            return_val = false;
++          }
++      }
++#else
+       if (!copy_attr (src_name, source_desc, dst_name, dest_desc, x)
+           && x->require_preserve_xattr)
+         return_val = false;
++#endif
+     }
+ 
+   set_author (dst_name, dest_desc, src_sb);
