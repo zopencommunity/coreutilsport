@@ -1,5 +1,5 @@
 diff --git a/src/cp.c b/src/cp.c
-index a0ec067..a61a96b 100644
+index 317d667..f347ab5 100644
 --- a/src/cp.c
 +++ b/src/cp.c
 @@ -607,6 +607,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
@@ -59,3 +59,23 @@ index a0ec067..a61a96b 100644
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");
+@@ -1102,6 +1145,10 @@ main (int argc, char **argv)
+           x.preserve_ownership = true;
+           x.preserve_mode = true;
+           x.preserve_timestamps = true;
++#ifdef __MVS__
++          x.preserve_xattr = true;
++          x.require_preserve_xattr = true;
++#endif
+           x.require_preserve = true;
+           break;
+ 
+@@ -1266,7 +1313,7 @@ main (int argc, char **argv)
+            _("failed to set default file creation context to %s"),
+            quote (scontext));
+ 
+-#if !USE_XATTR
++#if !USE_XATTR && !defined(__MVS__)
+   if (x.require_preserve_xattr)
+     error (EXIT_FAILURE, 0, _("cannot preserve extended attributes, cp is "
+                               "built without xattr support"));
