@@ -1,0 +1,14 @@
+diff --git a/lib/mini-gmp.h b/lib/mini-gmp.h
+index f28cb36..5fd0c8d 100644
+--- a/lib/mini-gmp.h
++++ b/lib/mini-gmp.h
+@@ -298,7 +298,8 @@ int mpz_init_set_str (mpz_t, const char *, int);
+   || defined (_ISO_STDIO_ISO_H)       /* Sun C++ */		\
+   || defined (__STDIO_LOADED)         /* VMS */			\
+   || defined (_STDIO)                 /* HPE NonStop */         \
+-  || defined (__DEFINED_FILE)         /* musl */
++  || defined (__DEFINED_FILE)         /* musl */		\
++  || defined (__FILE)
+ size_t mpz_out_str (FILE *, int, const mpz_t);
+ #endif
+ 

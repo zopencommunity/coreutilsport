@@ -1,8 +1,8 @@
 diff --git a/src/cp.c b/src/cp.c
-index 317d667..f347ab5 100644
+index e17484b..82755d8 100644
 --- a/src/cp.c
 +++ b/src/cp.c
-@@ -607,6 +607,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
+@@ -663,6 +663,36 @@ make_dir_parents_private (char const *const_dir, size_t src_offset,
    return true;
  }
  
@@ -39,13 +39,13 @@ index 317d667..f347ab5 100644
  /* Scan the arguments, and copy each by calling copy.
     Return true if successful.  */
  
-@@ -985,6 +1015,19 @@ main (int argc, char **argv)
+@@ -1037,6 +1067,19 @@ main (int argc, char **argv)
    bool no_target_directory = false;
-   char const *scontext = nullptr;
+   char const *scontext = NULL;
  
 +#ifdef __MVS__
 +  {
-+    int i;
++    int i, ok;
 +
 +    for (i=0; i<argc; ++i) {
 +      if (argv[i][0] == '/' && argv[i][1] == '/') {
@@ -59,7 +59,7 @@ index 317d667..f347ab5 100644
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");
-@@ -1102,6 +1145,10 @@ main (int argc, char **argv)
+@@ -1155,6 +1198,10 @@ main (int argc, char **argv)
            x.preserve_ownership = true;
            x.preserve_mode = true;
            x.preserve_timestamps = true;
@@ -70,7 +70,7 @@ index 317d667..f347ab5 100644
            x.require_preserve = true;
            break;
  
-@@ -1266,7 +1313,7 @@ main (int argc, char **argv)
+@@ -1319,7 +1366,7 @@ main (int argc, char **argv)
             _("failed to set default file creation context to %s"),
             quote (scontext));
  
