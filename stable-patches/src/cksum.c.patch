@@ -1,0 +1,72 @@
+diff --git a/src/cksum.c b/src/cksum.c
+index bab319b..72c1b64 100644
+--- a/src/cksum.c
++++ b/src/cksum.c
+@@ -66,6 +66,10 @@
+ #include "stdio--.h"
+ #include "xbinary-io.h"
+ 
++#ifdef __MVS__
++#include <zos.h>
++#endif
++
+ /* The official name of this program (e.g., no 'g' prefix).  */
+ #if HASH_ALGO_SUM
+ # define PROGRAM_NAME "sum"
+@@ -552,7 +556,7 @@ Legacy interface to the cksum utility.\n\
+      if (legacy_mode)
+        {
+ # endif
+-      if (O_BINARY)
++      if (O_BINARY || __MVS__)
+         oputs (_("\
+   -b, --binary\n\
+          read in binary mode (default unless reading tty stdin)\n\
+@@ -611,7 +615,7 @@ Legacy interface to the cksum utility.\n\
+     if (legacy_mode)
+       {
+ # endif
+-      if (O_BINARY)
++      if (O_BINARY || __MVS__)
+         oputs (_("\
+   -t, --text\n\
+          read in text mode (default if reading tty stdin)\n\
+@@ -1190,7 +1194,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+     {
+       have_read_stdin = true;
+       fp = stdin;
+-      if (O_BINARY && *binary)
++      if ((O_BINARY || __MVS__) && *binary)
+         {
+           if (*binary < 0)
+             *binary = ! isatty (STDIN_FILENO);
+@@ -1200,7 +1204,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+     }
+   else
+     {
+-      fp = fopen (filename, O_BINARY ? (*binary ? "rb" : "rt") : "r");
++      fp = fopen (filename, (O_BINARY || __MVS__) ? (*binary ? "rb" : "rt") : "r");
+       if (fp == NULL)
+         {
+           if (ignore_missing && errno == ENOENT)
+@@ -1213,6 +1217,11 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+         }
+     }
+ 
++#ifdef __MVS__
++  if (*binary)
++    __disableautocvt(fileno(fp));
++#endif
++
+   fadvise (fp, FADVISE_SEQUENTIAL);
+ 
+ #if HASH_ALGO_CKSUM
+@@ -1860,7 +1869,7 @@ main (int argc, char **argv)
+      usage (EXIT_FAILURE);
+    }
+ 
+-  if (!O_BINARY && binary < 0)
++  if (!(O_BINARY || __MVS__) && binary < 0)
+     binary = 0;
+   else if (prefix_tag)
+     binary = 1;

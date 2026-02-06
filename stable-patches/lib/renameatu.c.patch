@@ -1,0 +1,12 @@
+diff --git a/lib/renameatu.c b/lib/renameatu.c
+index 850cf5f..c78a1b7 100644
+--- a/lib/renameatu.c
++++ b/lib/renameatu.c
+@@ -24,6 +24,7 @@
+ #include <errno.h>
+ #include <stdio.h>
+ #include <sys/stat.h>
++#include <string.h>
+ #include <unistd.h>
+ 
+ #ifdef __linux__

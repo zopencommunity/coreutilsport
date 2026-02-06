@@ -1,8 +1,19 @@
 diff --git a/lib/nproc.c b/lib/nproc.c
-index e899ff1..844c8cb 100644
+index b0c9514..79cc5bc 100644
 --- a/lib/nproc.c
 +++ b/lib/nproc.c
-@@ -366,6 +366,10 @@ num_processors_available (enum nproc_query query)
+@@ -61,6 +61,10 @@
+ 
+ #include "minmax.h"
+ 
++#ifdef __MVS__
++#include <zos.h>
++#endif
++
+ #define ARRAY_SIZE(a) (sizeof (a) / sizeof ((a)[0]))
+ 
+ #define NPROC_MINIMUM 1
+@@ -354,6 +358,10 @@ num_processors_available (enum nproc_query query)
    }
  #endif
  

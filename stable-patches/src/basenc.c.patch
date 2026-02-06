@@ -1,12 +1,22 @@
 diff --git a/src/basenc.c b/src/basenc.c
-index ce259c4..32378fc 100644
+index cd86b10..feb0573 100644
 --- a/src/basenc.c
 +++ b/src/basenc.c
-@@ -1235,7 +1235,9 @@ main (int argc, char **argv)
-       if (input_fh == nullptr)
+@@ -55,7 +55,9 @@
+ # error missing/invalid BASE_TYPE definition
+ #endif
+ 
+-
++#ifdef __MVS__
++#include <zos.h>
++#endif
+ 
+ #if BASE_TYPE == 42
+ enum
+@@ -1825,6 +1827,9 @@ main (int argc, char **argv)
          error (EXIT_FAILURE, errno, "%s", quotef (infile));
      }
--
+ 
 +#ifdef __MVS__
 +  __disableautocvt(fileno(input_fh));
 +#endif

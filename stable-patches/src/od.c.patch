@@ -1,10 +1,21 @@
 diff --git a/src/od.c b/src/od.c
-index f893729..76db57c 100644
+index e749a6b..a79c683 100644
 --- a/src/od.c
 +++ b/src/od.c
-@@ -1006,6 +1006,11 @@ open_next_file (void)
+@@ -35,6 +35,10 @@
+ #include "xstrtol.h"
+ #include "xstrtol-error.h"
+ 
++#ifdef __MVS__
++#include <zos.h>
++#endif
++
+ /* The official name of this program (e.g., no 'g' prefix).  */
+ #define PROGRAM_NAME "od"
+ 
+@@ -1046,6 +1050,11 @@ open_next_file (void)
      }
-   while (in_stream == nullptr);
+   while (in_stream == NULL);
  
 +#ifdef __MVS__
 +  if (!isatty(fileno(in_stream)))
@@ -12,5 +23,5 @@ index f893729..76db57c 100644
 +#endif
 +
    if (0 <= end_offset && !flag_dump_strings)
-     setvbuf (in_stream, nullptr, _IONBF, 0);
+     setvbuf (in_stream, NULL, _IONBF, 0);
  

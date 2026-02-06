@@ -1,35 +1,36 @@
 diff --git a/src/cat.c b/src/cat.c
-index 2a3c1d1..0aea98a 100644
+index f9c9200..f6d5a66 100644
 --- a/src/cat.c
 +++ b/src/cat.c
-@@ -39,6 +39,10 @@
+@@ -39,6 +39,11 @@
  #include "full-write.h"
  #include "xbinary-io.h"
  
 +#ifdef __MVS__
++#include <zos.h>
 +#include <_Ccsid.h>
 +#endif
 +
  /* The official name of this program (e.g., no 'g' prefix).  */
  #define PROGRAM_NAME "cat"
  
-@@ -111,6 +115,15 @@ Concatenate FILE(s) to standard output.\n\
-   -u                       (ignored)\n\
+@@ -126,6 +131,15 @@ Concatenate FILE(s) to standard output.\n\
+       oputs (_("\
    -v, --show-nonprinting   use ^ and M- notation, except for LFD and TAB\n\
- "), stdout);
+ "));
 +#ifdef __MVS__
-+      fputs (_("\
-+  -B			   Disables the automatic conversion of tagged files.\n\
-+  			   This option is ignored if the filecodeset or pgmcodeset options (-W option) are specified.\n\
++      oputs (_("\
++  -B                      Disables the automatic conversion of tagged files.\n\
++                          This option is ignored if the filecodeset or pgmcodeset options (-W option) are specified.\n\
 +  -W option[,option]...    Specifies z/OS-specific options. The option keywords are case-sensitive. Possible options are:\n\
-+  			   filecodeset=codeset\n\
-+			   pgmcodeset=codeset\n\
-+"), stdout);
++                          filecodeset=codeset\n\
++                          pgmcodeset=codeset\n\
++"));
 +#endif
-       fputs (HELP_OPTION_DESCRIPTION, stdout);
-       fputs (VERSION_OPTION_DESCRIPTION, stdout);
+       oputs (HELP_OPTION_DESCRIPTION);
+       oputs (VERSION_OPTION_DESCRIPTION);
        printf (_("\
-@@ -125,6 +138,137 @@ Examples:\n\
+@@ -140,6 +154,137 @@ Examples:\n\
    exit (status);
  }
  
@@ -167,7 +168,7 @@ index 2a3c1d1..0aea98a 100644
  /* Compute the next line number.  */
  
  static void
-@@ -530,6 +674,35 @@ copy_cat (void)
+@@ -545,6 +690,35 @@ copy_cat (void)
        }
  }
  
@@ -203,7 +204,7 @@ index 2a3c1d1..0aea98a 100644
  
  int
  main (int argc, char **argv)
-@@ -546,6 +719,10 @@ main (int argc, char **argv)
+@@ -561,6 +735,10 @@ main (int argc, char **argv)
    bool show_ends = false;
    bool show_nonprinting = false;
    bool show_tabs = false;
@@ -214,8 +215,8 @@ index 2a3c1d1..0aea98a 100644
    int file_open_mode = O_RDONLY;
  
    static struct option const long_options[] =
-@@ -562,6 +739,19 @@ main (int argc, char **argv)
-     {nullptr, 0, nullptr, 0}
+@@ -577,6 +755,19 @@ main (int argc, char **argv)
+     {NULL, 0, NULL, 0}
    };
  
 +#ifdef __MVS__
@@ -234,21 +235,21 @@ index 2a3c1d1..0aea98a 100644
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");
-@@ -577,8 +767,13 @@ main (int argc, char **argv)
+@@ -592,8 +783,13 @@ main (int argc, char **argv)
    /* Parse command line options.  */
  
    int c;
 +#ifdef __MVS__
-+  while ((c = getopt_long (argc, argv, "benstuvAETBW:", long_options, nullptr))
++  while ((c = getopt_long (argc, argv, "benstuvAETBW:", long_options, NULL))
 +         != -1)
-+#elif
-   while ((c = getopt_long (argc, argv, "benstuvAET", long_options, nullptr))
++#else
+   while ((c = getopt_long (argc, argv, "benstuvAET", long_options, NULL))
           != -1)
 +#endif
      {
        switch (c)
          {
-@@ -627,6 +822,22 @@ main (int argc, char **argv)
+@@ -642,6 +838,22 @@ main (int argc, char **argv)
            show_tabs = true;
            break;
  
@@ -271,12 +272,12 @@ index 2a3c1d1..0aea98a 100644
          case_GETOPT_HELP_CHAR;
  
          case_GETOPT_VERSION_CHAR (PROGRAM_NAME, AUTHORS);
-@@ -636,6 +847,20 @@ main (int argc, char **argv)
+@@ -651,6 +863,19 @@ main (int argc, char **argv)
          }
      }
  
 +#ifdef __MVS__
-+if (!ccsid_info.cmd_arg) {
++  if (!ccsid_info.cmd_arg) {
 +    const char *env = getenv("_TEXT_CONV");
 +    if (env) {
 +        if (!parse_text_conv_env(env, &ccsid_info)) {
@@ -285,30 +286,29 @@ index 2a3c1d1..0aea98a 100644
 +            ccsid_info.enable_text_conv = get_codepage_options(&ccsid_info);
 +        }
 +    }
-+}
-+
++  }
 +#endif
 +
    /* Get device, i-node number, and optimal blocksize of output.  */
  
-   if (fstat (STDOUT_FILENO, &stat_buf) < 0)
-@@ -698,6 +923,19 @@ main (int argc, char **argv)
+   if (fstat (STDOUT_FILENO, &ostat_buf) < 0)
+@@ -702,6 +927,19 @@ main (int argc, char **argv)
              }
          }
  
 +#ifdef __MVS__
-+	if(ccsid_info.enable_text_conv) {
-+	   struct f_cnvrt cvt;
-+	   cvt.cvtcmd = SETCVTALL;
-+    	   cvt.pccsid = ccsid_info.pgmccsid;
-+           cvt.fccsid = ccsid_info.fileccsid;
-+	   fcntl(input_desc, F_CONTROL_CVT, &cvt);
-+	}
++       if(ccsid_info.enable_text_conv) {
++          struct f_cnvrt cvt;
++          cvt.cvtcmd = SETCVTALL;
++          cvt.pccsid = ccsid_info.pgmccsid;
++          cvt.fccsid = ccsid_info.fileccsid;
++          fcntl(input_desc, F_CONTROL_CVT, &cvt);
++       }
 +        else if(ccsid_info.disable_autocvt) {
-+	   __disableautocvt(input_desc);
-+	}
++          __disableautocvt(input_desc);
++       }
 +#endif
 +
-       if (fstat (input_desc, &stat_buf) < 0)
+       struct stat istat_buf;
+       if (fstat (input_desc, &istat_buf) < 0)
          {
-           error (0, errno, "%s", quotef (infile));
