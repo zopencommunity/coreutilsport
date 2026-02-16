@@ -1,5 +1,5 @@
 diff --git a/src/ls.c b/src/ls.c
-index 70ddba1..741a1a3 100644
+index 70ddba1..d6a9fb7 100644
 --- a/src/ls.c
 +++ b/src/ls.c
 @@ -59,6 +59,10 @@
@@ -114,7 +114,7 @@ index 70ddba1..741a1a3 100644
 +   struct stat *sb = NULL;
 +   char txtflag[6] = "     ";
 +   char filetype[2] = " ";
-+   char buf[_CSNAME_LEN_MAX + sizeof(txtflag) + sizeof(filetype) + 2];
++   static char buf[_CSNAME_LEN_MAX + sizeof(txtflag) + sizeof(filetype) + 2];
 +   sb = &f->stat;
 +   if ((f->filetype != directory) && (f->filetype != symbolic_link)) {
 +      __toCSName(sb->st_tag.ft_ccsid, filetag);
@@ -147,16 +147,24 @@ index 70ddba1..741a1a3 100644
  
  /* Print information about F in long format.  */
  static void
-@@ -4238,7 +4327,7 @@ print_long_format (const struct fileinfo *f)
+@@ -4238,9 +4327,15 @@ print_long_format (const struct fileinfo *f)
  {
    char modebuf[12];
    char buf
 -    [LONGEST_HUMAN_READABLE + 1		/* inode */
 +    [LONGEST_HUMAN_READABLE + 1        /* inode */
       + LONGEST_HUMAN_READABLE + 1	/* size in blocks */
++#ifdef __MVS__
++     + _CSNAME_LEN_MAX + 10             /* tag */
++#endif
       + sizeof (modebuf) - 1 + 1		/* mode string */
++#ifdef __MVS__
++     + 10                               /* extended_attributes */
++#endif
       + INT_BUFSIZE_BOUND (uintmax_t)	/* st_nlink */
-@@ -4251,7 +4340,6 @@ print_long_format (const struct fileinfo *f)
+      + LONGEST_HUMAN_READABLE + 2	/* major device number */
+      + LONGEST_HUMAN_READABLE + 1	/* minor device number */
+@@ -4251,7 +4346,6 @@ print_long_format (const struct fileinfo *f)
    struct timespec when_timespec;
    struct tm when_local;
    bool btime_ok = true;
@@ -164,7 +172,7 @@ index 70ddba1..741a1a3 100644
    /* Compute the mode string, except remove the trailing space if no
       file in this directory has an ACL or security context.  */
    if (f->stat_ok)
-@@ -4292,7 +4380,6 @@ print_long_format (const struct fileinfo *f)
+@@ -4292,7 +4386,6 @@ print_long_format (const struct fileinfo *f)
      }
  
    p = buf;
@@ -172,7 +180,7 @@ index 70ddba1..741a1a3 100644
    if (print_inode)
      {
        char hbuf[INT_BUFSIZE_BOUND (uintmax_t)];
-@@ -4316,11 +4403,25 @@ print_long_format (const struct fileinfo *f)
+@@ -4316,11 +4409,25 @@ print_long_format (const struct fileinfo *f)
        p[-1] = ' ';
      }
  
