@@ -1,5 +1,5 @@
 diff --git a/src/cat.c b/src/cat.c
-index f9c9200..f6d5a66 100644
+index f9c9200..e84ea88 100644
 --- a/src/cat.c
 +++ b/src/cat.c
 @@ -39,6 +39,11 @@
@@ -14,23 +14,25 @@ index f9c9200..f6d5a66 100644
  /* The official name of this program (e.g., no 'g' prefix).  */
  #define PROGRAM_NAME "cat"
  
-@@ -126,6 +131,15 @@ Concatenate FILE(s) to standard output.\n\
+@@ -126,6 +131,17 @@ Concatenate FILE(s) to standard output.\n\
        oputs (_("\
    -v, --show-nonprinting   use ^ and M- notation, except for LFD and TAB\n\
  "));
 +#ifdef __MVS__
 +      oputs (_("\
-+  -B                      Disables the automatic conversion of tagged files.\n\
-+                          This option is ignored if the filecodeset or pgmcodeset options (-W option) are specified.\n\
++  -B                       Disables the automatic conversion of tagged files.\n\
++                           This option is ignored if the filecodeset or pgmcodeset options (-W option) are specified.\n\
++"));
++      oputs (_("\
 +  -W option[,option]...    Specifies z/OS-specific options. The option keywords are case-sensitive. Possible options are:\n\
-+                          filecodeset=codeset\n\
-+                          pgmcodeset=codeset\n\
++                           filecodeset=codeset\n\
++                           pgmcodeset=codeset\n\
 +"));
 +#endif
        oputs (HELP_OPTION_DESCRIPTION);
        oputs (VERSION_OPTION_DESCRIPTION);
        printf (_("\
-@@ -140,6 +154,137 @@ Examples:\n\
+@@ -140,6 +156,137 @@ Examples:\n\
    exit (status);
  }
  
@@ -168,7 +170,7 @@ index f9c9200..f6d5a66 100644
  /* Compute the next line number.  */
  
  static void
-@@ -545,6 +690,35 @@ copy_cat (void)
+@@ -545,6 +692,35 @@ copy_cat (void)
        }
  }
  
@@ -204,7 +206,7 @@ index f9c9200..f6d5a66 100644
  
  int
  main (int argc, char **argv)
-@@ -561,6 +735,10 @@ main (int argc, char **argv)
+@@ -561,6 +737,10 @@ main (int argc, char **argv)
    bool show_ends = false;
    bool show_nonprinting = false;
    bool show_tabs = false;
@@ -215,7 +217,7 @@ index f9c9200..f6d5a66 100644
    int file_open_mode = O_RDONLY;
  
    static struct option const long_options[] =
-@@ -577,6 +755,19 @@ main (int argc, char **argv)
+@@ -577,6 +757,19 @@ main (int argc, char **argv)
      {NULL, 0, NULL, 0}
    };
  
@@ -235,7 +237,7 @@ index f9c9200..f6d5a66 100644
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");
-@@ -592,8 +783,13 @@ main (int argc, char **argv)
+@@ -592,8 +785,13 @@ main (int argc, char **argv)
    /* Parse command line options.  */
  
    int c;
@@ -249,7 +251,7 @@ index f9c9200..f6d5a66 100644
      {
        switch (c)
          {
-@@ -642,6 +838,22 @@ main (int argc, char **argv)
+@@ -642,6 +840,22 @@ main (int argc, char **argv)
            show_tabs = true;
            break;
  
@@ -272,7 +274,7 @@ index f9c9200..f6d5a66 100644
          case_GETOPT_HELP_CHAR;
  
          case_GETOPT_VERSION_CHAR (PROGRAM_NAME, AUTHORS);
-@@ -651,6 +863,19 @@ main (int argc, char **argv)
+@@ -651,6 +865,19 @@ main (int argc, char **argv)
          }
      }
  
@@ -292,7 +294,7 @@ index f9c9200..f6d5a66 100644
    /* Get device, i-node number, and optimal blocksize of output.  */
  
    if (fstat (STDOUT_FILENO, &ostat_buf) < 0)
-@@ -702,6 +927,19 @@ main (int argc, char **argv)
+@@ -702,6 +929,19 @@ main (int argc, char **argv)
              }
          }
  
