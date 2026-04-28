@@ -1,34 +1,33 @@
 diff --git a/src/pinky.c b/src/pinky.c
-index 88862c2..39842df 100644
+index 625c426..d069686 100644
 --- a/src/pinky.c
 +++ b/src/pinky.c
-@@ -242,13 +242,19 @@ print_entry (const STRUCT_UTMP *utmp_ent)
+@@ -247,12 +247,19 @@ print_entry (STRUCT_UTMP const *utmp_ent)
          printf (" %19s", _("        ???"));
        else
          {
--          char *const comma = strchr (pw->pw_gecos, ',');
-           char *result;
++          char *result;
 +#ifndef __MVS__
-+          char *const comma = strchr (pw->pw_gecos, ',');
+           char *const comma = strchr (pw->pw_gecos, ',');
  
            if (comma)
              *comma = '\0';
 +#endif
  
+-          char *result = create_fullname (pw->pw_gecos, pw->pw_name);
 +#ifdef __MVS__
 +          result = create_fullname ("", pw->pw_name);
 +#else
-           result = create_fullname (pw->pw_gecos, pw->pw_name);
++          result = create_fullname (pw->pw_gecos, pw->pw_name);
 +#endif
            printf (" %-19.19s", result);
            free (result);
          }
-@@ -323,13 +329,19 @@ print_long_entry (const char name[])
+@@ -358,12 +365,19 @@ print_long_entry (const char name[])
      }
    else
      {
 -      char *const comma = strchr (pw->pw_gecos, ',');
--      char *result;
 +          char *result;
 +#ifndef __MVS__
 +          char *const comma = strchr (pw->pw_gecos, ',');
@@ -39,7 +38,7 @@ index 88862c2..39842df 100644
 +            *comma = '\0';
 +#endif
  
--      result = create_fullname (pw->pw_gecos, pw->pw_name);
+-      char *result = create_fullname (pw->pw_gecos, pw->pw_name);
 +#ifdef __MVS__
 +          result = create_fullname ("", pw->pw_name);
 +#else
