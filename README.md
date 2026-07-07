@@ -1,3 +1,5 @@
+[![CodeQL](https://github.com/Sanjana-Kondalwade/coreutilsport/actions/workflows/codeql.yml/badge.svg)](https://github.com/Sanjana-Kondalwade/coreutilsport/actions/workflows/codeql.yml)
+
 [![Automatic version updates](https://github.com/ZOSOpenTools/coreutilsport/actions/workflows/bump.yml/badge.svg)](https://github.com/ZOSOpenTools/coreutilsport/actions/workflows/bump.yml)
 
 # Coreutils
