@@ -1,8 +1,8 @@
 diff --git a/src/timeout.c b/src/timeout.c
-index 11ae013..a0e92eb 100644
+index 94d2c41..bd5108f 100644
 --- a/src/timeout.c
 +++ b/src/timeout.c
-@@ -113,7 +113,7 @@ static struct option const long_options[] =
+@@ -114,7 +114,7 @@ static struct option const long_options[] =
  static void
  settimeout (double duration, bool warn)
  {
@@ -11,7 +11,7 @@ index 11ae013..a0e92eb 100644
  #if HAVE_TIMER_SETTIME
    /* timer_settime() provides potentially nanosecond resolution.  */
  
-@@ -161,7 +161,7 @@ settimeout (double duration, bool warn)
+@@ -162,7 +162,7 @@ settimeout (double duration, bool warn)
          error (0, errno, _("warning: setitimer"));
      }
  #endif
@@ -20,7 +20,7 @@ index 11ae013..a0e92eb 100644
    /* fallback to single second resolution provided by alarm().  */
  
    unsigned int timeint;
-@@ -469,6 +469,7 @@ main (int argc, char **argv)
+@@ -513,6 +513,7 @@ main (int argc, char **argv)
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");

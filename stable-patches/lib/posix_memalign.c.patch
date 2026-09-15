@@ -1,5 +1,5 @@
 diff --git a/lib/posix_memalign.c b/lib/posix_memalign.c
-index 7078af4..5aef7dc 100644
+index 35f285c..bc778f4 100644
 --- a/lib/posix_memalign.c
 +++ b/lib/posix_memalign.c
 @@ -26,6 +26,11 @@ int

@@ -1,8 +1,8 @@
 diff --git a/src/basenc.c b/src/basenc.c
-index cd86b10..feb0573 100644
+index 8e8f61c..dc2817e 100644
 --- a/src/basenc.c
 +++ b/src/basenc.c
-@@ -55,7 +55,9 @@
+@@ -54,7 +54,9 @@
  # error missing/invalid BASE_TYPE definition
  #endif
  
@@ -13,7 +13,7 @@ index cd86b10..feb0573 100644
  
  #if BASE_TYPE == 42
  enum
-@@ -1825,6 +1827,9 @@ main (int argc, char **argv)
+@@ -1824,6 +1826,9 @@ main (int argc, char **argv)
          error (EXIT_FAILURE, errno, "%s", quotef (infile));
      }
  

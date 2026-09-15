@@ -1,5 +1,5 @@
 diff --git a/src/od.c b/src/od.c
-index e749a6b..a79c683 100644
+index 8910375..19a2657 100644
 --- a/src/od.c
 +++ b/src/od.c
 @@ -35,6 +35,10 @@

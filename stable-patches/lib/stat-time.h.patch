@@ -1,8 +1,8 @@
 diff --git a/lib/stat-time.h b/lib/stat-time.h
-index 38315b9..30e9e0b 100644
+index 37b7ec4..36b3da2 100644
 --- a/lib/stat-time.h
 +++ b/lib/stat-time.h
-@@ -185,6 +185,8 @@ get_stat_birthtime (_GL_UNUSED struct stat const *st)
+@@ -186,6 +186,8 @@ get_stat_birthtime (_GL_UNUSED struct stat const *st)
  #if (defined HAVE_STRUCT_STAT_ST_BIRTHTIMESPEC_TV_NSEC \
       || defined HAVE_STRUCT_STAT_ST_BIRTHTIM_TV_NSEC)
    t = STAT_TIMESPEC (st, st_birthtim);

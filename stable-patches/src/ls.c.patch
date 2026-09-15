@@ -1,5 +1,5 @@
 diff --git a/src/ls.c b/src/ls.c
-index 70ddba1..d6a9fb7 100644
+index 9536209..423aec2 100644
 --- a/src/ls.c
 +++ b/src/ls.c
 @@ -59,6 +59,10 @@
@@ -31,7 +31,7 @@ index 70ddba1..d6a9fb7 100644
  /* Include <sys/capability.h> last to avoid a clash of <sys/types.h>
     include guards with some premature versions of libcap.
     For more details, see <https://bugzilla.redhat.com/483548>.  */
-@@ -1651,6 +1666,10 @@ main (int argc, char **argv)
+@@ -1654,6 +1669,10 @@ main (int argc, char **argv)
    struct pending *thispend;
    int n_files;
  
@@ -42,7 +42,7 @@ index 70ddba1..d6a9fb7 100644
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
    setlocale (LC_ALL, "");
-@@ -1922,7 +1941,7 @@ decode_switches (int argc, char **argv)
+@@ -1925,7 +1944,7 @@ decode_switches (int argc, char **argv)
      {
        int oi = -1;
        int c = getopt_long (argc, argv,
@@ -51,7 +51,7 @@ index 70ddba1..d6a9fb7 100644
                             long_options, &oi);
        if (c == -1)
          break;
-@@ -2051,6 +2070,15 @@ decode_switches (int argc, char **argv)
+@@ -2054,6 +2073,15 @@ decode_switches (int argc, char **argv)
            dired = true;
            break;
  
@@ -67,7 +67,7 @@ index 70ddba1..d6a9fb7 100644
          case 'F':
            {
              int i;
-@@ -2103,10 +2131,15 @@ decode_switches (int argc, char **argv)
+@@ -2106,10 +2134,15 @@ decode_switches (int argc, char **argv)
            break;
  
          case 'T':
@@ -84,7 +84,7 @@ index 70ddba1..d6a9fb7 100644
          case 'U':
            sort_opt = sort_none;
            break;
-@@ -4231,6 +4264,62 @@ format_inode (char buf[INT_BUFSIZE_BOUND (uintmax_t)],
+@@ -4259,6 +4292,62 @@ format_inode (char buf[INT_BUFSIZE_BOUND (uintmax_t)],
            ? umaxtostr (f->stat.st_ino, buf)
            : (char *) "?");
  }
@@ -147,7 +147,7 @@ index 70ddba1..d6a9fb7 100644
  
  /* Print information about F in long format.  */
  static void
-@@ -4238,9 +4327,15 @@ print_long_format (const struct fileinfo *f)
+@@ -4266,9 +4355,15 @@ print_long_format (const struct fileinfo *f)
  {
    char modebuf[12];
    char buf
@@ -164,7 +164,7 @@ index 70ddba1..d6a9fb7 100644
       + INT_BUFSIZE_BOUND (uintmax_t)	/* st_nlink */
       + LONGEST_HUMAN_READABLE + 2	/* major device number */
       + LONGEST_HUMAN_READABLE + 1	/* minor device number */
-@@ -4251,7 +4346,6 @@ print_long_format (const struct fileinfo *f)
+@@ -4279,7 +4374,6 @@ print_long_format (const struct fileinfo *f)
    struct timespec when_timespec;
    struct tm when_local;
    bool btime_ok = true;
@@ -172,7 +172,7 @@ index 70ddba1..d6a9fb7 100644
    /* Compute the mode string, except remove the trailing space if no
       file in this directory has an ACL or security context.  */
    if (f->stat_ok)
-@@ -4292,7 +4386,6 @@ print_long_format (const struct fileinfo *f)
+@@ -4320,7 +4414,6 @@ print_long_format (const struct fileinfo *f)
      }
  
    p = buf;
@@ -180,7 +180,7 @@ index 70ddba1..d6a9fb7 100644
    if (print_inode)
      {
        char hbuf[INT_BUFSIZE_BOUND (uintmax_t)];
-@@ -4316,11 +4409,25 @@ print_long_format (const struct fileinfo *f)
+@@ -4344,11 +4437,25 @@ print_long_format (const struct fileinfo *f)
        p[-1] = ' ';
      }
  

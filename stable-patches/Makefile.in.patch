@@ -1,8 +1,8 @@
 diff --git a/Makefile.in b/Makefile.in
-index 6a4294a..da80728 100644
+index 75e5377..f00efa4 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -8665,7 +8665,6 @@ all_tests = \
+@@ -9383,7 +9383,6 @@ all_tests = \
    tests/tail/wait.sh				\
    tests/tail/retry.sh				\
    tests/tail/symlink.sh				\

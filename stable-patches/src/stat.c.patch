@@ -1,7 +1,7 @@
-diff --git i/src/stat.c w/src/stat.c
-index 3ea7da7..1de574c 100644
---- i/src/stat.c
-+++ w/src/stat.c
+diff --git a/src/stat.c b/src/stat.c
+index a29e9a0..36699d4 100644
+--- a/src/stat.c
++++ b/src/stat.c
 @@ -18,6 +18,7 @@
  
  #include <config.h>
@@ -10,9 +10,9 @@ index 3ea7da7..1de574c 100644
  /* Keep this conditional in sync with the similar conditional in
     ../m4/stat-prog.m4.  */
  #if ((STAT_STATVFS || STAT_STATVFS64)                                       \
-@@ -57,6 +58,37 @@
- 
- #include "system.h"
+@@ -73,6 +74,37 @@
+ #include "xvasprintf.h"
+ #include "statx.h"
  
 +#ifdef __MVS__
 +#include <sys/types.h>
@@ -45,9 +45,9 @@ index 3ea7da7..1de574c 100644
 +}
 +#endif
 +
- #include "areadlink.h"
- #include "argmatch.h"
- #include "c-ctype.h"
+ #if HAVE_STATX && defined STATX_INO
+ # define USE_STATX 1
+ #else
 @@ -100,7 +132,14 @@
  # elif HAVE_STRUCT_STATFS_F_NAMEMAX
  #  define SB_F_NAMEMAX(S) ((S)->f_namemax)
@@ -90,7 +90,7 @@ index 3ea7da7..1de574c 100644
  #else
    switch (statfsbuf->f_type)
      {
-@@ -873,6 +920,9 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -897,6 +944,9 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
        {
  #if STRUCT_STATXFS_F_FSID_IS_INTEGER
          uintmax_t fsid = statfsbuf->f_fsid;
@@ -100,7 +100,7 @@ index 3ea7da7..1de574c 100644
  #else
          typedef unsigned int fsid_word;
          static_assert (alignof (STRUCT_STATVFS) % alignof (fsid_word) == 0);
-@@ -890,8 +940,8 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -914,8 +964,8 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
              uintmax_t u = p[words - 1 - i];
              fsid |= u << (i * CHAR_BIT * sizeof *p);
            }
@@ -110,7 +110,7 @@ index 3ea7da7..1de574c 100644
        }
        break;
  
-@@ -909,30 +959,44 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
+@@ -933,30 +983,44 @@ print_statfs (char *pformat, size_t prefix_len, MAYBE_UNUSED char mod, char m,
        out_string (pformat, prefix_len, human_fstype (statfsbuf));
        break;
      case 'b':
@@ -155,7 +155,7 @@ index 3ea7da7..1de574c 100644
        break;
      default:
        fputc ('?', stdout);
-@@ -1267,12 +1331,14 @@ do_statfs (char const *filename, char const *format)
+@@ -1266,12 +1330,14 @@ do_statfs (char const *filename, char const *format)
        return false;
      }
  
@@ -170,7 +170,7 @@ index 3ea7da7..1de574c 100644
  
    bool fail = print_it (format, -1, filename, print_statfs, &statfsbuf);
    return ! fail;
-@@ -1648,6 +1714,30 @@ print_stat (char *pformat, size_t prefix_len, char mod, char m,
+@@ -1652,6 +1718,30 @@ print_stat (char *pformat, size_t prefix_len, char mod, char m,
      case 'C':
        fail |= out_file_context (pformat, prefix_len, filename);
        break;
@@ -201,7 +201,7 @@ index 3ea7da7..1de574c 100644
      default:
        fputc ('?', stdout);
        break;
-@@ -1698,18 +1788,14 @@ default_format (bool fs, bool terse, bool device)
+@@ -1702,18 +1792,14 @@ default_format (bool fs, bool terse, bool device)
            temp = format;
            if (device)
              {
@@ -227,7 +227,7 @@ index 3ea7da7..1de574c 100644
  "));
              }
            free (temp);
-@@ -1741,6 +1827,12 @@ default_format (bool fs, bool terse, bool device)
+@@ -1745,6 +1831,12 @@ default_format (bool fs, bool terse, bool device)
                                  "Change: %z\n"
                                  " Birth: %w\n"));
            free (temp);
@@ -240,7 +240,7 @@ index 3ea7da7..1de574c 100644
          }
      }
    return format;
-@@ -1831,6 +1923,10 @@ The valid format sequences for files (without --file-system):\n\
+@@ -1848,6 +1940,10 @@ The valid format sequences for files (without --file-system):\n\
    %Y   time of last data modification, seconds since Epoch\n\
    %z   time of last status change, human-readable\n\
    %Z   time of last status change, seconds since Epoch\n\
