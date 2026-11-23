@@ -1,8 +1,8 @@
 diff --git a/lib/fts.c b/lib/fts.c
-index 5a86419..d99e666 100644
+index 0c03c81..d839b27 100644
 --- a/lib/fts.c
 +++ b/lib/fts.c
-@@ -1394,8 +1394,11 @@ fts_build (register FTS *sp, int type)
+@@ -1351,8 +1351,11 @@ fts_build (register FTS *sp, int type)
                                   != NO_LEAF_OPTIMIZATION)));
              if (descend || type == BREAD)
                {

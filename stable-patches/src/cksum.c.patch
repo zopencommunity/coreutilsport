@@ -1,5 +1,5 @@
 diff --git a/src/cksum.c b/src/cksum.c
-index bab319b..72c1b64 100644
+index 186ba31..7698ca6 100644
 --- a/src/cksum.c
 +++ b/src/cksum.c
 @@ -66,6 +66,10 @@
@@ -13,7 +13,7 @@ index bab319b..72c1b64 100644
  /* The official name of this program (e.g., no 'g' prefix).  */
  #if HASH_ALGO_SUM
  # define PROGRAM_NAME "sum"
-@@ -552,7 +556,7 @@ Legacy interface to the cksum utility.\n\
+@@ -552,7 +556,7 @@ Legacy interface to the cksum(1) utility.\n\
       if (legacy_mode)
         {
  # endif
@@ -22,7 +22,7 @@ index bab319b..72c1b64 100644
          oputs (_("\
    -b, --binary\n\
           read in binary mode (default unless reading tty stdin)\n\
-@@ -611,7 +615,7 @@ Legacy interface to the cksum utility.\n\
+@@ -611,7 +615,7 @@ Legacy interface to the cksum(1) utility.\n\
      if (legacy_mode)
        {
  # endif
@@ -31,7 +31,7 @@ index bab319b..72c1b64 100644
          oputs (_("\
    -t, --text\n\
           read in text mode (default if reading tty stdin)\n\
-@@ -1190,7 +1194,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+@@ -1195,7 +1199,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
      {
        have_read_stdin = true;
        fp = stdin;
@@ -40,7 +40,7 @@ index bab319b..72c1b64 100644
          {
            if (*binary < 0)
              *binary = ! isatty (STDIN_FILENO);
-@@ -1200,7 +1204,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+@@ -1205,7 +1209,7 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
      }
    else
      {
@@ -49,7 +49,7 @@ index bab319b..72c1b64 100644
        if (fp == NULL)
          {
            if (ignore_missing && errno == ENOENT)
-@@ -1213,6 +1217,11 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
+@@ -1218,6 +1222,11 @@ digest_file (char const *filename, int *binary, unsigned char *bin_result,
          }
      }
  
@@ -61,7 +61,7 @@ index bab319b..72c1b64 100644
    fadvise (fp, FADVISE_SEQUENTIAL);
  
  #if HASH_ALGO_CKSUM
-@@ -1860,7 +1869,7 @@ main (int argc, char **argv)
+@@ -1853,7 +1862,7 @@ main (int argc, char **argv)
       usage (EXIT_FAILURE);
     }
  

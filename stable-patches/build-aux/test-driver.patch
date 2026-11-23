@@ -1,8 +1,8 @@
 diff --git a/build-aux/test-driver b/build-aux/test-driver
-index be73b80..0321f2a 100755
+index d81fba7..624e3ac 100755
 --- a/build-aux/test-driver
 +++ b/build-aux/test-driver
-@@ -102,7 +102,7 @@ fi
+@@ -109,7 +109,7 @@ fi
  do_exit='rm -f $log_file $trs_file; (exit $st); exit $st'
  trap "st=129; $do_exit" 1
  trap "st=130; $do_exit" 2

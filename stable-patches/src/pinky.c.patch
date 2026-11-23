@@ -1,5 +1,5 @@
 diff --git a/src/pinky.c b/src/pinky.c
-index 625c426..d069686 100644
+index d336c51..2144386 100644
 --- a/src/pinky.c
 +++ b/src/pinky.c
 @@ -247,12 +247,19 @@ print_entry (STRUCT_UTMP const *utmp_ent)
@@ -23,7 +23,7 @@ index 625c426..d069686 100644
            printf (" %-19.19s", result);
            free (result);
          }
-@@ -358,12 +365,19 @@ print_long_entry (const char name[])
+@@ -357,12 +364,19 @@ print_long_entry (const char name[])
      }
    else
      {
