@@ -1,5 +1,5 @@
 diff --git a/src/basenc.c b/src/basenc.c
-index 8e8f61c..dc2817e 100644
+index 8e8f61c..a434f98 100644
 --- a/src/basenc.c
 +++ b/src/basenc.c
 @@ -54,7 +54,9 @@
@@ -13,7 +13,36 @@ index 8e8f61c..dc2817e 100644
  
  #if BASE_TYPE == 42
  enum
-@@ -1824,6 +1826,9 @@ main (int argc, char **argv)
+@@ -1509,6 +1511,13 @@ do_encode (FILE *in, char const *infile, FILE *out, idx_t wrap_column)
+       do
+         {
+           n = fread (inbuf + sum, 1, ENC_BLOCKSIZE - sum, in);
++          if (n == 0 && !feof (in) && !ferror (in))
++            {
++              /* z/OS: fread() on a closed file descriptor returns 0
++                 without setting the EOF or error indicator; without
++                 this check the loop below would spin forever.  */
++              error (EXIT_FAILURE, EBADF, _("read error"));
++            }
+           sum += n;
+         }
+       while (!feof (in) && !ferror (in) && sum < ENC_BLOCKSIZE);
+@@ -1598,6 +1607,14 @@ do_decode (FILE *in, char const *infile, FILE *out, bool ignore_garbage)
+ 
+           if (ferror (in))
+             error (EXIT_FAILURE, errno, _("read error"));
++
++          if (n == 0 && !feof (in) && !ferror (in))
++            {
++              /* z/OS: fread() on a closed file descriptor returns 0
++                 without setting the EOF or error indicator; without
++                 this check the loop below would spin forever.  */
++              error (EXIT_FAILURE, EBADF, _("read error"));
++            }
+         }
+       while (sum < BASE_LENGTH (DEC_BLOCKSIZE) && !feof (in));
+ 
+@@ -1824,6 +1841,9 @@ main (int argc, char **argv)
          error (EXIT_FAILURE, errno, "%s", quotef (infile));
      }
  
